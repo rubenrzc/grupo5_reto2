@@ -42,7 +42,7 @@ public class Document implements Serializable {
     private User user;
     
     @ManyToMany(mappedBy = "documents")
-    private Collection<Area> areas;
+    private Collection <Area> areas;
     
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
