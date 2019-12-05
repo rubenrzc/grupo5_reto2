@@ -17,6 +17,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Past;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -24,6 +26,7 @@ import javax.validation.constraints.Past;
  */
 @Entity
 @Table(name="document",schema="grupo5_database")
+@XmlRootElement
 public class Document implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -78,6 +81,7 @@ public class Document implements Serializable {
         this.user = user;
     }
 
+    @XmlTransient
     public Collection<Area> getAreas() {
         return areas;
     }
@@ -109,7 +113,6 @@ public class Document implements Serializable {
     public void setDocumentContent(Byte[] documentContent) {
         this.documentContent = documentContent;
     }
-    
     
     public int getId() {
         return id;
