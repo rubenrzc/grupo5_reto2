@@ -34,7 +34,34 @@ public class UserFacadeREST extends AbstractFacade<User> {
     public UserFacadeREST() {
         super(User.class);
     }
+    
+    @GET
+    @Path("{id}") //PARA LOGIN
+    @Produces({MediaType.APPLICATION_XML})
+    public User find(@PathParam("id") Integer id) {
+        return super.find(id);
+    }
 
+    @GET
+    @Override  //PARA LISTA
+    @Produces({MediaType.APPLICATION_XML})
+    public List<User> findAll() {
+        return super.findAll();
+    }
+
+    /**
+     *
+     * @param email
+     * @return
+     */
+    @GET
+    @Path("{email}") //buscar contraseña por email apra enviar por correo
+    @Produces(MediaType.TEXT_PLAIN)
+    @Override
+    public String recoverPassword(@PathParam("email") String email) {
+        return super.recoverPassword(email);
+    }
+    
     @POST
     @Override
     @Consumes({MediaType.APPLICATION_XML})
@@ -53,34 +80,6 @@ public class UserFacadeREST extends AbstractFacade<User> {
     @Path("{id}")
     public void remove(@PathParam("id") Integer id) {
         super.remove(super.find(id));
-    }
-
-    @GET
-    @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
-    public User find(@PathParam("id") Integer id) {
-        return super.find(id);
-    }
-
-    @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML})
-    public List<User> findAll() {
-        return super.findAll();
-    }
-
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML})
-    public List<User> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
-
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
     }
 
     @Override

@@ -17,6 +17,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -28,10 +30,17 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 
+
 /**
  *
  * @author Francisco Romero Alonso
  */
+@NamedQueries({
+    @NamedQuery(
+        name="recoverPassword",
+        query="SELECT a.password from User a where a.email=:email")
+})
+
 @Entity
 @Table(name = "user", schema = "grupo5_database")
 @XmlRootElement
