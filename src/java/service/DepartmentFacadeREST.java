@@ -5,8 +5,13 @@
  */
 package service;
 
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import entitiesJPA.Department;
+import exceptions.getCollectionException;
+import interfaces.DepartmentManagerLocal;
+import java.util.ArrayList;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,68 +29,56 @@ import javax.ws.rs.core.MediaType;
  *
  * @author 2dam
  */
-@Stateless
 @Path("entitiesjpa.department")
-public class DepartmentFacadeREST extends AbstractFacade<Department> {
+public class DepartmentFacadeREST {
 
-    @PersistenceContext(unitName = "grupo5_ServerPU")
-    private EntityManager em;
-
-    public DepartmentFacadeREST() {
-        super(Department.class);
-    }
+    @EJB
+    private DepartmentManagerLocal ejb;
 
     @POST
-    @Override
     @Consumes({MediaType.APPLICATION_XML})
     public void create(Department entity) {
-        super.create(entity);
+        ejb.create(entity);
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(@PathParam("id") Integer id, Department entity) {
-        super.edit(entity);
+        ejb.edit(entity);
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+    public void remove(@PathParam("id") Long id) {
+        ejb.remove(ejb.find(id).getId());
     }
 
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Department find(@PathParam("id") Integer id) {
-        return super.find(id);
+    public Department find(@PathParam("id") Long id) {
+        return ejb.find(id);
     }
 
     @GET
-    @Override
     @Produces({MediaType.APPLICATION_XML})
-    public List<Department> findAll() {
-        return super.findAll();
+    public List<Department> FindAllDepartment() {
+        List<Department> ret = null;
+        try {
+            ret = ejb.FindAll();
+        } catch (getCollectionException ex) {
+            LOGGER.severe(ex.getMessage());
+        }
+        return ret;
     }
-
     @GET
-    @Path("{from}/{to}")
+    @Path("name/{name}")
     @Produces({MediaType.APPLICATION_XML})
-    public List<Department> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
+    public Department FindDepartmentByName(@PathParam("name") String name){
+        Department depart= null;
+        depart= ejb.FindDepartmentByName(name);
+        return depart;
     }
 
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
-    }
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return em;
-    }
-    
 }
