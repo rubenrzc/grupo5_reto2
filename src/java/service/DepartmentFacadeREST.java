@@ -5,7 +5,7 @@
  */
 package service;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
+
 import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  */
 @Path("entitiesjpa.department")
 public class DepartmentFacadeREST {
-
+    private Logger LOGGER;
     @EJB
     private EJBDepartmentInterface ejb;
 

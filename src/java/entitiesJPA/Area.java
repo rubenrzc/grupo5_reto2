@@ -8,12 +8,14 @@ package entitiesJPA;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Entity;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -25,6 +27,8 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name="area",schema="grupo5_database")
+@NamedQuery(name="FindAllAreas",
+        query="SELECT a FROM Area a ")
 @XmlRootElement
 public class Area implements Serializable {
 
@@ -36,12 +40,12 @@ public class Area implements Serializable {
     
     private String name;
     
-    @ManyToMany
+    @ManyToMany(fetch=EAGER )
     @JoinColumn(name="areas")
     private Collection<Department> departments;
     
-    @ManyToMany
-    @JoinTable(name="areas_documents")
+    @ManyToMany(fetch=EAGER)
+    @JoinTable(name="areas_documents",schema="grupo5_database")
     private Collection<Document> documents;
 
     public int getId() {
@@ -67,7 +71,7 @@ public class Area implements Serializable {
     /**
      * @return the departments
      */
-    @XmlTransient
+    
     public Collection<Department> getDepartments() {
         return departments;
     }
@@ -80,7 +84,7 @@ public class Area implements Serializable {
     /**
      * @return the documents
      */
-    @XmlTransient
+    
     public Collection<Document> getDocuments() {
         return documents;
     }
