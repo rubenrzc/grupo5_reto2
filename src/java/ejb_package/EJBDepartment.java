@@ -6,64 +6,60 @@
 package ejb_package;
 
 import entitiesJPA.Department;
-import exceptions.getCollectionException;
-import interfaces.DepartmentManagerLocal;
+import exceptions.CreateException;
+import exceptions.DeleteException;
+import exceptions.GetCollectionException;
+import exceptions.UpdateException;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import interfaces.EJBDepartmentInterface;
+import java.util.Collection;
 
 /**
  *
  * @author Yeray
  */
 @Stateless
-public class EJBDepartmentManager implements DepartmentManagerLocal {
+public class EJBDepartment implements EJBDepartmentInterface {
 
-    private static final Logger LOGGER = Logger.getLogger(EJBUser.class.getPackage() + "." + EJBDepartmentManager.class.getName());
-
+  
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
     /**
      * 
      * @param depart 
      */
-    public void create(Department depart) {
+    public void createDepartment(Department depart) {
         em.persist(depart);
     }
     /**
      * 
      * @param depart 
      */
-    public void edit(Department depart) {
+    public void updateDepartment(Department depart) {
         em.merge(depart);
     }
     /**
      * 
      * @param depart 
      */
-    public void remove(Long id ) {
+    public void deleteDepartment(Department depart ) {
         Query query = em.createQuery("DELETE FROM Department a WHERE a.id=:id");
-        query.setParameter("id", id);
+        query.setParameter("id", depart.getId());
         query.executeUpdate();
     }
-    /**
-     * 
-     * @param depart
-     * @return 
-     */
-    public Department find(Long id) {
-        return em.find(Department.class, id);
-    }
+ 
     /**
      * 
      * @return 
-     * @throws exceptions.getCollectionException 
+     * @throws exceptions.GetCollectionException 
      */
-    @Override
-    public List<Department> FindAll() throws getCollectionException {
+    
+    public Collection<Department> getDepartmentList() throws GetCollectionException {
         return em.createNamedQuery("FindAllDepartment").getResultList();
     }
     
@@ -73,5 +69,7 @@ public class EJBDepartmentManager implements DepartmentManagerLocal {
         query.setParameter("name", name);
         return (Department) query.getSingleResult();
     }
+
+
 
 }

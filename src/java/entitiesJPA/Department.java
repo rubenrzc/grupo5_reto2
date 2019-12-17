@@ -25,17 +25,11 @@ import javax.persistence.NamedQuery;
  *
  * @author Yeray
  */
-@NamedQueries({
+
 @NamedQuery(
         name = "FindAllDepartment",
-        query = "SELECT a FROM Department a "),
-    
-@NamedQuery(
-        name = "FindDepartmentByName",
-        query ="SELECT a FROM Department a WHERE a.name=:name")
-    
-
-})
+        query = "SELECT a FROM Department a ")
+        
 @Entity
 @Table(name = "department", schema = "grupo5_database")
 @XmlRootElement

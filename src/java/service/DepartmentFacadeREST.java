@@ -7,8 +7,10 @@ package service;
 
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import entitiesJPA.Department;
-import exceptions.getCollectionException;
-import interfaces.DepartmentManagerLocal;
+import exceptions.CreateException;
+import exceptions.DeleteException;
+import exceptions.GetCollectionException;
+import exceptions.UpdateException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.EJB;
@@ -24,6 +26,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import interfaces.EJBDepartmentInterface;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,52 +39,50 @@ import javax.ws.rs.core.MediaType;
 public class DepartmentFacadeREST {
 
     @EJB
-    private DepartmentManagerLocal ejb;
+    private EJBDepartmentInterface ejb;
 
     @POST
     @Consumes({MediaType.APPLICATION_XML})
     public void create(Department entity) {
-        ejb.create(entity);
+        try {
+            ejb.createDepartment(entity);
+        } catch (CreateException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(@PathParam("id") Integer id, Department entity) {
-        ejb.edit(entity);
+        try {
+            ejb.updateDepartment(entity);
+        } catch (UpdateException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Long id) {
-        ejb.remove(ejb.find(id).getId());
-    }
-
-    @GET
-    @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
-    public Department find(@PathParam("id") Long id) {
-        return ejb.find(id);
-    }
-
-    @GET
-    @Produces({MediaType.APPLICATION_XML})
-    public List<Department> FindAllDepartment() {
-        List<Department> ret = null;
+    public void remove(@PathParam("id") Department depart) {
         try {
-            ret = ejb.FindAll();
-        } catch (getCollectionException ex) {
+            ejb.deleteDepartment(depart);
+        } catch (DeleteException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @GET
+    @Produces({MediaType.APPLICATION_XML})
+    public Collection<Department> FindAllDepartment() {
+        Collection<Department> ret = null;
+        try {
+            ret = ejb.getDepartmentList();
+        } catch (GetCollectionException ex) {
             LOGGER.severe(ex.getMessage());
         }
         return ret;
     }
-    @GET
-    @Path("name/{name}")
-    @Produces({MediaType.APPLICATION_XML})
-    public Department FindDepartmentByName(@PathParam("name") String name){
-        Department depart= null;
-        depart= ejb.FindDepartmentByName(name);
-        return depart;
-    }
+
 
 }
