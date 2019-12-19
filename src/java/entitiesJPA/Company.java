@@ -34,6 +34,7 @@ public class Company implements Serializable {
    
     private String name;
     private String cif;
+    private boolean status;
     @OneToMany(mappedBy="company")
     private Collection<User> users;
     @ManyToMany
@@ -130,5 +131,15 @@ public class Company implements Serializable {
     public void setDepartments(Collection <Department> departments) {
         this.departments = departments;
     }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+    
+    
     
 }

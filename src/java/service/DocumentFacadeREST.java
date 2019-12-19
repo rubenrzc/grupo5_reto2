@@ -6,10 +6,16 @@
 package service;
 
 import entitiesJPA.Document;
-import java.util.List;
+import exceptions.CreateException;
+import exceptions.DeleteException;
+import exceptions.GetCollectionException;
+import exceptions.UpdateException;
+import interfaces.EJBDocumentInterface;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,68 +30,61 @@ import javax.ws.rs.core.MediaType;
  *
  * @author 2dam
  */
-@Stateless
-@Path("entitiesjpa.document")
-public class DocumentFacadeREST extends AbstractFacade<Document> {
+@Path("document")
+public class DocumentFacadeREST{
 
-    @PersistenceContext(unitName = "grupo5_ServerPU")
-    private EntityManager em;
-
-    public DocumentFacadeREST() {
-        super(Document.class);
-    }
+    @EJB(beanName="EJBDocument")
+    private EJBDocumentInterface ejb;
 
     @POST
-    @Override
     @Consumes({MediaType.APPLICATION_XML})
-    public void create(Document entity) {
-        super.create(entity);
+    public void createNewDocument(Document document) {
+        try {
+            ejb.createNewDocument(document);
+        } catch (CreateException ex) {
+            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @PUT
-    @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(@PathParam("id") Integer id, Document entity) {
-        super.edit(entity);
+    public void updateDocument(Document document) {
+        try {
+            ejb.updateDocument(document);
+        } catch (UpdateException ex) {
+            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @DELETE
     @Path("{id}")
     public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+        Document document = new Document();
+        document.setId(id);
+        try {
+            ejb.deleteDocument(document);
+        } catch (DeleteException ex) {
+            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Document find(@PathParam("id") Integer id) {
-        return super.find(id);
+    public Document find(@PathParam("id") int id) {
+        return ejb.findDocumentById(id);
     }
 
     @GET
-    @Override
     @Produces({MediaType.APPLICATION_XML})
-    public List<Document> findAll() {
-        return super.findAll();
-    }
-
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML})
-    public List<Document> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
-
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
-    }
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return em;
+    public Collection<Document> findAll() {
+        Collection<Document> collection=null;
+        try {
+            collection = ejb.getDocumentList();
+        } catch (GetCollectionException ex) {
+            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return collection;
     }
     
 }

@@ -12,8 +12,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.validation.constraints.Past;
@@ -24,6 +27,16 @@ import javax.xml.bind.annotation.XmlTransient;
  *
  * @author Francisco Romero Alonso
  */
+
+@NamedQueries({
+    @NamedQuery(
+        name="findDocumentById",
+        query="Select a from Document a where a.id=:id"),
+    @NamedQuery(
+        name="findAllDocuments",
+        query="select a from Document a")
+})
+
 @Entity
 @Table(name="document",schema="grupo5_database")
 @XmlRootElement
