@@ -6,86 +6,100 @@
 package service;
 
 import entitiesJPA.Company;
-import java.util.List;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import entitiesJPA.User;
+import exceptions.CreateException;
+import exceptions.DeleteException;
+import exceptions.GetCollectionException;
+import exceptions.SelectException;
+import exceptions.UpdateException;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import interfaces.EJBCompanyInterface;
+import java.util.Collection;
+import java.util.logging.Level;
 
 /**
  *
  * @author 2dam
  */
-@Stateless
-@Path("entitiesjpa.company")
-public class CompanyFacadeREST extends AbstractFacade<Company> {
+@Path("company")
+public class CompanyFacadeREST {
 
-    @PersistenceContext(unitName = "grupo5_ServerPU")
-    private EntityManager em;
-
-    public CompanyFacadeREST() {
-        super(Company.class);
-    }
+    @EJB(beanName = "EJBCompany")
+    private EJBCompanyInterface ejb;
 
     @POST
-    @Override
     @Consumes({MediaType.APPLICATION_XML})
-    public void create(Company entity) {
-        super.create(entity);
+    public void create(Company company) {
+        try {
+            ejb.createCompany(company);
+        } catch (CreateException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        }
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(@PathParam("id") Integer id, Company entity) {
-        super.edit(entity);
+    public void edit(Company company) {
+        try {
+            ejb.updateCompany(company);
+        } catch (UpdateException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        }
     }
 
     @DELETE
     @Path("{id}")
     public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+        Company company = null;
+        try {
+            company.setId(id);
+            ejb.deleteCompany(company);
+        } catch (DeleteException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        }
     }
 
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
     public Company find(@PathParam("id") Integer id) {
-        return super.find(id);
+        Company company = null;
+        try {
+            company = ejb.getCompanyProfile(id);
+        } catch (SelectException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return company;
     }
 
     @GET
-    @Override
     @Produces({MediaType.APPLICATION_XML})
-    public List<Company> findAll() {
-        return super.findAll();
+    public Collection<Company> findAll() {
+        Collection<Company> companies = null;
+        try {
+            companies = ejb.getCompanyList();
+        } catch (GetCollectionException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        }
+        return companies;
     }
 
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML})
-    public List<Company> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
 
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
-    }
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return em;
-    }
     
 }
