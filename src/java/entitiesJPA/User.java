@@ -38,7 +38,19 @@ import org.hibernate.validator.constraints.Email;
 @NamedQueries({
     @NamedQuery(
         name="recoverPassword",
-        query="SELECT a.password from User a where a.email=:email")
+        query="SELECT a.password from User a where a.email=:email"),
+    @NamedQuery(
+        name="findAllUsers",
+        query="SELECT a FROM User a ORDER BY a.id"),
+    @NamedQuery(
+        name="findByLogin",
+        query="Select a from User a where a.login=:login"),
+    @NamedQuery(
+        name="findByLoginAndPassword",
+        query="Select a from User a where a.login=:login and a.password=:password"),
+    @NamedQuery(
+        name="findById",
+        query="Select a from User a where a.id=:id"),
 })
 
 @Entity
