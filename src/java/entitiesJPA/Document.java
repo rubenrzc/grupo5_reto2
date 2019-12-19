@@ -135,6 +135,16 @@ public class Document implements Serializable {
         this.id = id;
     }
 
+    public DocumentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DocumentStatus status) {
+        this.status = status;
+    }
+
+    
+    
     @Override
     public int hashCode() {
         int hash = 0;

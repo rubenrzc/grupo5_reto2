@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,6 +25,8 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "company", schema = "grupo5_database")
+@NamedQuery(name="findAllCompanies",
+            query="SELECT a FROM Company a ORDER BY a.id")
 @XmlRootElement
 public class Company implements Serializable {
 
@@ -34,7 +37,6 @@ public class Company implements Serializable {
    
     private String name;
     private String cif;
-    private boolean status;
     @OneToMany(mappedBy="company")
     private Collection<User> users;
     @ManyToMany
@@ -131,15 +133,6 @@ public class Company implements Serializable {
     public void setDepartments(Collection <Department> departments) {
         this.departments = departments;
     }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-    
-    
+ 
     
 }
