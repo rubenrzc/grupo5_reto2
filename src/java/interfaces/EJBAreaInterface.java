@@ -20,11 +20,11 @@ import javax.ejb.Local;
 @Local
 public interface EJBAreaInterface {
     
-    public void createArea(Area department) throws CreateException;
+    public void createArea(Area area) throws CreateException;
 
-    public void updateArea(Area department) throws UpdateException;
+    public void updateArea(Area area) throws UpdateException;
     
-    public void deleteArea(Area department)throws DeleteException;
+    public void deleteArea(Area area)throws DeleteException;
 
     public Collection<Area> getAreaList() throws GetCollectionException;
 }

@@ -33,21 +33,21 @@ public class EJBDepartment implements EJBDepartmentInterface {
      * 
      * @param depart 
      */
-    public void createDepartment(Department depart) {
+    public void createDepartment(Department depart) throws CreateException{
         em.persist(depart);
     }
     /**
      * 
      * @param depart 
      */
-    public void updateDepartment(Department depart) {
+    public void updateDepartment(Department depart) throws UpdateException {
         em.merge(depart);
     }
     /**
      * 
      * @param depart 
      */
-    public void deleteDepartment(Department depart ) {
+    public void deleteDepartment(Department depart ) throws DeleteException{
         Query query = em.createQuery("DELETE FROM Department a WHERE a.id=:id");
         query.setParameter("id", depart.getId());
         query.executeUpdate();
@@ -63,8 +63,12 @@ public class EJBDepartment implements EJBDepartmentInterface {
         return em.createNamedQuery("FindAllDepartment").getResultList();
     }
     
+    /**
+     * 
+     * @param name
+     * @return 
+     */
     public Department FindDepartmentByName(String name){
-     
         Query query = em.createNamedQuery("FindDepartmentByName");
         query.setParameter("name", name);
         return (Department) query.getSingleResult();
