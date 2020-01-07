@@ -6,10 +6,15 @@
 package service;
 
 import entitiesJPA.Area;
-import java.util.List;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import exceptions.CreateException;
+import exceptions.DeleteException;
+import exceptions.GetCollectionException;
+import exceptions.UpdateException;
+import interfaces.EJBAreaInterface;
+import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -22,70 +27,54 @@ import javax.ws.rs.core.MediaType;
 
 /**
  *
- * @author 2dam
+ * @author Andoni
  */
-@Stateless
 @Path("entitiesjpa.area")
-public class AreaFacadeREST extends AbstractFacade<Area> {
+public class AreaFacadeREST {
 
-    @PersistenceContext(unitName = "grupo5_ServerPU")
-    private EntityManager em;
-
-    public AreaFacadeREST() {
-        super(Area.class);
-    }
+    @EJB(beanName="EJBArea")
+    private EJBAreaInterface ejb;
 
     @POST
-    @Override
     @Consumes({MediaType.APPLICATION_XML})
     public void create(Area entity) {
-        super.create(entity);
+        try {
+            ejb.createArea(entity);
+        } catch (CreateException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(@PathParam("id") Integer id, Area entity) {
-        super.edit(entity);
+        try {
+            ejb.updateArea(entity);
+        } catch (UpdateException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
-        super.remove(super.find(id));
+    public void remove(@PathParam("id") Area area) {
+        try {
+            ejb.deleteArea(area);
+        } catch (DeleteException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @GET
-    @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Area find(@PathParam("id") Integer id) {
-        return super.find(id);
+    public Collection<Area> FindAllArea() {
+        Collection<Area> ret = null;
+        try {
+            ret = ejb.getAreaList();
+        } catch (GetCollectionException ex) {
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
     }
-
-    @GET
-    @Override
-    @Produces({MediaType.APPLICATION_XML})
-    public List<Area> findAll() {
-        return super.findAll();
-    }
-
-    @GET
-    @Path("{from}/{to}")
-    @Produces({MediaType.APPLICATION_XML})
-    public List<Area> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
-        return super.findRange(new int[]{from, to});
-    }
-
-    @GET
-    @Path("count")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() {
-        return String.valueOf(super.count());
-    }
-
-    @Override
-    protected EntityManager getEntityManager() {
-        return em;
-    }
-    
 }

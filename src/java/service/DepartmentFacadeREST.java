@@ -5,18 +5,12 @@
  */
 package service;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
 import exceptions.UpdateException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -38,7 +32,7 @@ import java.util.logging.Logger;
 @Path("entitiesjpa.department")
 public class DepartmentFacadeREST {
 
-    @EJB
+    @EJB(beanName="EJBDepartment")
     private EJBDepartmentInterface ejb;
 
     @POST
@@ -79,7 +73,7 @@ public class DepartmentFacadeREST {
         try {
             ret = ejb.getDepartmentList();
         } catch (GetCollectionException ex) {
-            LOGGER.severe(ex.getMessage());
+            Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
         }
         return ret;
     }
