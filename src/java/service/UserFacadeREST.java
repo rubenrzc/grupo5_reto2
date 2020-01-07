@@ -91,12 +91,10 @@ public class UserFacadeREST {
      * 
      * @param email 
      */
-    @GET
+    @PUT
     @Path("{email}") //buscar contraseña por email apra enviar por correo
-    @Produces(MediaType.TEXT_PLAIN)
-    public void recoverPassword(@PathParam("email")String email) {
-        User user = new User();
-        user.setEmail(email);
+    @Consumes({MediaType.APPLICATION_XML})
+    public void recoverPassword(User user) {
         try {
             ejb.recoverPassword(user);
         } catch (RecoverPasswordException ex) {

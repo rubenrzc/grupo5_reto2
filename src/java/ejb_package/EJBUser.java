@@ -13,10 +13,14 @@ import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
 import exceptions.UpdateException;
+import files.MailSender;
 import interfaces.EJBUserInterface;
 import java.util.Collection;
+import java.util.Random;
+import java.util.ResourceBundle;
 import javax.persistence.EntityManager;
 import javax.ejb.Stateless;
+import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
@@ -25,8 +29,8 @@ import javax.persistence.PersistenceContext;
  * @author 2dam
  */
 @Stateless
-public class EJBUser implements EJBUserInterface{
-    
+public class EJBUser implements EJBUserInterface {
+
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
@@ -34,21 +38,21 @@ public class EJBUser implements EJBUserInterface{
     public void updateUser(User user) throws UpdateException {
         em.merge(user);
     }
-    
-    public User findUserById(int id){
+
+    public User findUserById(int id) {
         return (User) em.createNamedQuery("findById").setParameter("id", id).getSingleResult();
     }
 
     @Override
-    public User login(User user) throws LoginException,LoginPasswordException {
+    public User login(User user) throws LoginException, LoginPasswordException {
         User ret = new User();
         try {
             ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
         } catch (NoResultException e) {
-            throw new LoginException(); 
+            throw new LoginException();
         }
         ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
-        if(ret==null){
+        if (ret == null) {
             throw new LoginPasswordException();
         }
         return ret;
@@ -66,10 +70,26 @@ public class EJBUser implements EJBUserInterface{
     @Override
     public void recoverPassword(User user) throws RecoverPasswordException {
         try {
-            String password = (String) em.createNamedQuery("recoverPassword").setParameter("email", user.getEmail()).getSingleResult();
+            String password = (String) em.createNamedQuery("recoverPassword")
+                    .setParameter("email", user.getEmail()).getSingleResult();
+            //generamos nueva contraseña
+            password = new Random().ints(10, 33, 122).collect(StringBuilder::new,
+                    StringBuilder::appendCodePoint, StringBuilder::append)
+                    .toString();
+            user.setPassword(password);
+            em.merge(user);//actualizamos en la base de datos
             //ENVIAR CORREO
+            MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"), "abcd*1234", null, null);
+		try {
+			emailService.sendMail("2dam2curious@gmail.com", "fromeroalonso1986@gmail.com", "Mensaje de RETO", "Correo de vital importancia");
+			System.out.println("Ok, mail sent!");
+		} catch (MessagingException e) {
+			System.out.println("Doh!");
+			e.printStackTrace();
+		}
+            
         } catch (NoResultException e) {
-            throw new RecoverPasswordException(); 
+            throw new RecoverPasswordException();
         }
     }
 
@@ -82,5 +102,5 @@ public class EJBUser implements EJBUserInterface{
     public void createUser(User user) throws CreateException {
         em.persist(user);
     }
-    
+
 }
