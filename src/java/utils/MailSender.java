@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package files;
+package utils;
 
 
 import java.util.Properties;
@@ -22,8 +22,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 /**
- * Builds an Email Service capable of sending normal email to a given SMTP Host.
- * Currently <b>send()</b> can only works with text.
+ * 
+ * @author Fran
  */
 public class MailSender {
 

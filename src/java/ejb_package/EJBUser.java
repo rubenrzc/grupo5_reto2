@@ -13,7 +13,7 @@ import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
 import exceptions.UpdateException;
-import files.MailSender;
+import utils.MailSender;
 import interfaces.EJBUserInterface;
 import java.util.Collection;
 import java.util.Random;
@@ -23,10 +23,11 @@ import javax.ejb.Stateless;
 import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import utils.EncryptionClass;
 
 /**
  *
- * @author 2dam
+ * @author Fran
  */
 @Stateless
 public class EJBUser implements EJBUserInterface {
@@ -36,6 +37,9 @@ public class EJBUser implements EJBUserInterface {
 
     @Override
     public void updateUser(User user) throws UpdateException {
+        EncryptionClass hash = new EncryptionClass();
+        String passwordHashDB = hash.hashingText(user.getPassword());
+        user.setPassword(passwordHashDB);
         em.merge(user);
     }
 
@@ -46,11 +50,15 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public User login(User user) throws LoginException, LoginPasswordException {
         User ret = new User();
+        EncryptionClass hash = new EncryptionClass();
         try {
             ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
         } catch (NoResultException e) {
             throw new LoginException();
         }
+        String passwordHashDB = hash.hashingText(user.getPassword());
+        user.setPassword(passwordHashDB);
+        
         ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
         if (ret == null) {
             throw new LoginPasswordException();
@@ -70,30 +78,34 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public void recoverPassword(User user) throws RecoverPasswordException {
         try {
-            String password = (String) em.createNamedQuery("recoverPassword")
+            EncryptionClass hash = new EncryptionClass();
+            String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
                     .setParameter("email", user.getEmail()).getSingleResult();
             //generamos nueva contraseña
-            password = new Random().ints(10, 33, 122).collect(StringBuilder::new,
+            String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
                     StringBuilder::appendCodePoint, StringBuilder::append)
                     .toString();
-            user.setPassword(password);
+
+            passwordHashDB = hash.hashingText(notEncodedNew);
+            user.setPassword(passwordHashDB);
+
             em.merge(user);//actualizamos en la base de datos
             //ENVIAR CORREO
             MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
-		try {
-			emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
-                                user.getEmail(),
-                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageSubject"),
-                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail1")+
-                                password+
-                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail2"));
-			System.out.println("Ok, mail sent!");
-		} catch (MessagingException e) {
-			System.out.println("Doh!");
-			e.printStackTrace();
-		}
-            
+            try {
+                emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
+                        user.getEmail(),
+                        ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageSubject"),
+                        ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail1")
+                        + notEncodedNew
+                        + ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail2"));
+                System.out.println("Ok, mail sent!");
+            } catch (MessagingException e) {
+                System.out.println("Doh!");
+                e.printStackTrace();
+            }
+
         } catch (NoResultException e) {
             throw new RecoverPasswordException();
         }
@@ -106,6 +118,10 @@ public class EJBUser implements EJBUserInterface {
 
     @Override
     public void createUser(User user) throws CreateException {
+        EncryptionClass hash = new EncryptionClass();
+        String hashPassword = user.getPassword();
+        hashPassword = hash.hashingText(hashPassword);
+        user.setPassword(hashPassword);
         em.persist(user);
     }
 
