@@ -104,7 +104,7 @@ public class User implements Serializable {
     private Date lastPassWordChange;
     
     @ManyToOne
-    @JoinColumn(name="company_id",nullable=false)
+    @JoinColumn(name="company_id",nullable=true)
     private Company company;
 
     @OneToMany(mappedBy = "user")

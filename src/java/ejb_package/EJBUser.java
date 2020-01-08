@@ -79,9 +79,15 @@ public class EJBUser implements EJBUserInterface {
             user.setPassword(password);
             em.merge(user);//actualizamos en la base de datos
             //ENVIAR CORREO
-            MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"), "abcd*1234", null, null);
+            MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
+                    ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
 		try {
-			emailService.sendMail("2dam2curious@gmail.com", "fromeroalonso1986@gmail.com", "Mensaje de RETO", "Correo de vital importancia");
+			emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
+                                user.getEmail(),
+                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageSubject"),
+                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail1")+
+                                password+
+                                ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail2"));
 			System.out.println("Ok, mail sent!");
 		} catch (MessagingException e) {
 			System.out.println("Doh!");
