@@ -7,13 +7,13 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -43,21 +43,21 @@ public class Department implements Serializable {
      * Department name
      */
     @Size(min = 1, max = 40)
-    @NotNull
+    @Column(nullable=false,unique=true)
     private String name;
 
     /**
      * Companies collection
      */
     @ManyToMany
-    @JoinTable(name = "depart_comp")
+    @JoinTable(name = "depart_comp", schema = "grupo5_database")
     private Collection<Company> companies;
 
     /**
      * Areas collection
      */
     @ManyToMany
-    @JoinTable(name = "depart_area")
+    @JoinTable(name = "depart_area", schema = "grupo5_database")
     private Collection<Area> areas;
 
     public Long getId() {
