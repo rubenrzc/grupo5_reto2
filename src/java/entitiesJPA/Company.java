@@ -7,6 +7,7 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,7 +44,7 @@ public class Company implements Serializable {
     private String name;
     private String cif;
     
-    @OneToMany(mappedBy="company",cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="company",cascade=CascadeType.ALL)
     private Collection<User> users;
     
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

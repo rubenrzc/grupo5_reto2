@@ -9,11 +9,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -96,6 +99,7 @@ public class User implements Serializable {
     
     @Type(type = "org.hibernate.type.BlobType")
     @Lob
+    @Basic(fetch=EAGER)
     private byte[] photo;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -110,11 +114,11 @@ public class User implements Serializable {
     @Past
     private Date bDate;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="company_id",nullable=true)
     private Company company;
 
-    @OneToMany(mappedBy = "user",cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user",cascade=CascadeType.ALL)
     private Collection<Document> documents = new ArrayList<Document>();
 
     /**

@@ -8,14 +8,17 @@ package entitiesJPA;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -55,7 +58,7 @@ public class Document implements Serializable {
 
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id",nullable=true)
     private User user;
 
@@ -68,6 +71,8 @@ public class Document implements Serializable {
 
     private Boolean visibility;
 
+    @Lob
+    @Basic(fetch=EAGER)
     private Byte[] documentContent;
 
     private DocumentStatus status;
