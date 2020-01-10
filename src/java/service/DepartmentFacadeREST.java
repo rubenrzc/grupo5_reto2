@@ -24,15 +24,16 @@ import interfaces.EJBDepartmentInterface;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ws.rs.InternalServerErrorException;
 
 /**
  *
  * @author 2dam
  */
-@Path("entitiesjpa.department")
+@Path("department")
 public class DepartmentFacadeREST {
 
-    @EJB(beanName="EJBDepartment")
+    @EJB(beanName = "EJBDepartment")
     private EJBDepartmentInterface ejb;
 
     @POST
@@ -42,27 +43,31 @@ public class DepartmentFacadeREST {
             ejb.createDepartment(entity);
         } catch (CreateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(@PathParam("id") Integer id, Department entity) {
+    public void edit(Department entity) {
         try {
             ejb.updateDepartment(entity);
         } catch (UpdateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+                        throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Department depart) {
+    public void remove(@PathParam("id") Integer id) {
         try {
-            ejb.deleteDepartment(depart);
+            ejb.deleteDepartment(id);
         } catch (DeleteException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException(ex.getMessage());
+
         }
     }
 
@@ -77,6 +82,5 @@ public class DepartmentFacadeREST {
         }
         return ret;
     }
-
 
 }

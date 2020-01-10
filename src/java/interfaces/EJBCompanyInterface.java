@@ -27,7 +27,7 @@ public interface EJBCompanyInterface {
 
     public void updateCompany(Company company) throws UpdateException;
 
-    public void deleteCompany(Company company) throws DeleteException;
+    public void deleteCompany(int id) throws DeleteException;
 
     public Company getCompanyProfile(int id) throws SelectException;
 

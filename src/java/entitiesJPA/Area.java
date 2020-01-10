@@ -7,7 +7,10 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,16 +39,18 @@ public class Area implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private int id;
     
     private String name;
     
-    @ManyToMany(fetch=EAGER )
-    @JoinColumn(name="areas")
+    @ManyToMany(mappedBy="areas",fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
     private Collection<Department> departments;
     
-    @ManyToMany(fetch=EAGER)
-    @JoinTable(name="areas_documents",schema="grupo5_database")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name="areas_documents",schema="grupo5_database",
+              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
+              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
     private Collection<Document> documents;
 
     public int getId() {

@@ -26,7 +26,7 @@ public interface EJBDepartmentInterface {
 
     public void updateDepartment(Department department) throws UpdateException;
     
-    public void deleteDepartment(Department department)throws DeleteException;
+    public void deleteDepartment(int id)throws DeleteException;
 
     public Collection<Department> getDepartmentList() throws GetCollectionException;
 

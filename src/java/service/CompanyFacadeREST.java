@@ -30,7 +30,7 @@ import java.util.logging.Level;
 
 /**
  *
- * @author 2dam
+ * @author Ruben
  */
 @Path("company")
 public class CompanyFacadeREST {
@@ -64,10 +64,8 @@ public class CompanyFacadeREST {
     @DELETE
     @Path("{id}")
     public void remove(@PathParam("id") Integer id) {
-        Company company = null;
         try {
-            company.setId(id);
-            ejb.deleteCompany(company);
+            ejb.deleteCompany(id);
         } catch (DeleteException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
             throw new InternalServerErrorException(ex.getMessage());

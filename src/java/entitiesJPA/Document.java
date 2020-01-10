@@ -8,7 +8,10 @@ package entitiesJPA;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,46 +28,48 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Francisco Romero Alonso
+ * @author Ruben
  */
-
 @NamedQueries({
     @NamedQuery(
-        name="findDocumentById",
-        query="Select a from Document a where a.id=:id"),
+            name = "findDocumentById",
+            query = "Select a from Document a where a.id=:id")
+    ,
     @NamedQuery(
-        name="findAllDocuments",
-        query="select a from Document a")
+            name = "findAllDocuments",
+            query = "select a from Document a")
 })
 
 @Entity
-@Table(name="document",schema="grupo5_database")
+@Table(name = "document", schema = "grupo5_database")
 @XmlRootElement
 public class Document implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private int id;
 
     private String name;
-    
+
     private String description;
-    
+
     @ManyToOne
+    @JoinColumn(name="user_id",nullable=true)
     private User user;
-    
-    @ManyToMany(mappedBy = "documents")
-    private Collection <Area> areas;
-    
+
+    @ManyToMany(mappedBy = "documents", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private Collection<Area> areas;
+
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
     private Date uploadDate;
-    
+
     private Boolean visibility;
-    
+
     private Byte[] documentContent;
-    
+
     private DocumentStatus status;
 
     public Document() {
@@ -126,7 +131,7 @@ public class Document implements Serializable {
     public void setDocumentContent(Byte[] documentContent) {
         this.documentContent = documentContent;
     }
-    
+
     public int getId() {
         return id;
     }
@@ -143,8 +148,6 @@ public class Document implements Serializable {
         this.status = status;
     }
 
-    
-    
     @Override
     public int hashCode() {
         int hash = 0;
@@ -169,5 +172,5 @@ public class Document implements Serializable {
     public String toString() {
         return "entitiesJPA.Document[ id=" + id + " ]";
     }
-    
+
 }

@@ -24,7 +24,7 @@ public interface EJBAreaInterface {
 
     public void updateArea(Area area) throws UpdateException;
     
-    public void deleteArea(Area area)throws DeleteException;
+    public void deleteArea(int id)throws DeleteException;
 
     public Collection<Area> getAreaList() throws GetCollectionException;
 }

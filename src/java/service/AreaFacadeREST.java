@@ -18,6 +18,7 @@ import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -29,10 +30,10 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Andoni
  */
-@Path("entitiesjpa.area")
+@Path("area")
 public class AreaFacadeREST {
 
-    @EJB(beanName="EJBArea")
+    @EJB(beanName = "EJBArea")
     private EJBAreaInterface ejb;
 
     @POST
@@ -42,27 +43,30 @@ public class AreaFacadeREST {
             ejb.createArea(entity);
         } catch (CreateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
     @PUT
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(@PathParam("id") Integer id, Area entity) {
+    public void edit(Area entity) {
         try {
             ejb.updateArea(entity);
         } catch (UpdateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Area area) {
+    public void remove(@PathParam("id") Integer id) {
         try {
-            ejb.deleteArea(area);
+            ejb.deleteArea(id);
         } catch (DeleteException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }
 

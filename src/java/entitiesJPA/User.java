@@ -8,6 +8,7 @@ package entitiesJPA;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -63,6 +64,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private int id;
 
     @Size(min = 1, max = 40)
@@ -103,11 +105,15 @@ public class User implements Serializable {
     @Past
     private Date lastPassWordChange;
     
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Past
+    private Date bDate;
+    
     @ManyToOne
     @JoinColumn(name="company_id",nullable=true)
     private Company company;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",cascade=CascadeType.ALL)
     private Collection<Document> documents;
 
     /**
@@ -291,6 +297,14 @@ public class User implements Serializable {
      */
     public void setLastPassWordChange(Date lastPassWordChange) {
         this.lastPassWordChange = lastPassWordChange;
+    }
+    
+    public Date getbDate() {
+        return bDate;
+    }
+
+    public void setbDate(Date bDate) {
+        this.bDate = bDate;
     }
 
     /**

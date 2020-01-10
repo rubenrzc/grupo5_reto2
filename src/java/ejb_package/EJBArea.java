@@ -5,6 +5,7 @@
  */
 package ejb_package;
 
+import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import entitiesJPA.Area;
 import exceptions.CreateException;
 import exceptions.DeleteException;
@@ -18,82 +19,73 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * EJB class that make the CRUD of the Area entity
+ *
  * @author Andoni
  */
 @Stateless
-public class EJBArea implements EJBAreaInterface{
-    
+public class EJBArea implements EJBAreaInterface {
+
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
-    Logger LOGGER;
-    
+
     /**
      * Methot that create a new Area
+     *
      * @param area Area entity object type
-     * @throws CreateException 
+     * @throws CreateException
      */
-    public void createArea(Area area) throws CreateException { 
-        try{
-            if(em.find(Area.class, area.getId())==null){
-                LOGGER.info("Creating new Area");
-                em.persist(area);
-            }else{
-                LOGGER.info("Area not created due to it exist");
-            }
-            
-        }catch(Exception e){
-            LOGGER.log(Level.WARNING, "IMPOSIBLE TO CREATE AREA");
+    public void createArea(Area area) throws CreateException {
+        try {
+            em.persist(area);
+        } catch (Exception e) {
             throw new CreateException(e.getMessage());
-        }   
+        }
     }
+
     /**
      * Method that make the update of the area entity
+     *
      * @param area Area entity object type
-     * @throws UpdateException 
+     * @throws UpdateException
      */
-    public void updateArea(Area area) throws UpdateException{
-        try{
-            if(em.find(Area.class, area.getId())==null){
-                LOGGER.info("Updating Area");
-                em.merge(area);
-                em.flush(); 
-            }
-        }catch(Exception e) {
-            LOGGER.log(Level.WARNING, "IMPOSIBLE TO UPDATE AREA");
+    public void updateArea(Area area) throws UpdateException {
+        try {
+            em.merge(area);
+            em.flush();
+        } catch (Exception e) {
             throw new UpdateException(e.getMessage());
         }
     }
+
     /**
-     * Methot that delete a specific Area
-     * by the id
+     * Methot that delete a specific Area by the id
+     *
      * @param id int that contain the area id to delete
-     * @throws DeleteException 
+     * @throws DeleteException
      */
-    public void deleteArea(Area area) throws DeleteException {
-        try{
-            LOGGER.info("Deleting Area");
-            em.remove(area.getId());
-        }catch(Exception e){
-            LOGGER.log(Level.WARNING, "IMPOSIBLE TO DELETE AREA");
+    public void deleteArea(int id) throws DeleteException {
+        try {
+            em.remove(em.find(Area.class, id));
+        } catch (Exception e) {
             throw new DeleteException(e.getMessage());
         }
-        
+
     }
+
     /**
      * Methot that return a area list collection
+     *
      * @return a area list collection
-     * @throws GetCollectionException 
+     * @throws GetCollectionException
      */
     public Collection<Area> getAreaList() throws GetCollectionException {
-        //try{
-            //LOGGER.info("Geting area list");
+        try {
             return em.createNamedQuery("FindAllAreas").getResultList();
-       // }catch(Exception e){
-           // LOGGER.log(Level.WARNING, "IMPOSIBLE GET AREA LIST");
-            //throw new GetCollectionException(e.getMessage());
-        //}       
-    }  
+        } catch (Exception e) {
+            // LOGGER.log(Level.WARNING, "IMPOSIBLE GET AREA LIST");
+            throw new GetCollectionException(e.getMessage());
+        }
+    }
 }

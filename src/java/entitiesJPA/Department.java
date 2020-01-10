@@ -7,11 +7,14 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
@@ -27,9 +30,8 @@ import javax.persistence.NamedQuery;
  */
 
 @NamedQuery(
-        name = "FindAllDepartment",
-        query = "SELECT a FROM Department a ")
-        
+        name = "findAllDepartments",
+        query = "SELECT a FROM Department a ORDER BY a.id")  
 @Entity
 @Table(name = "department", schema = "grupo5_database")
 @XmlRootElement
@@ -38,7 +40,8 @@ public class Department implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Column(name="id")
+    private int id;
     /**
      * Department name
      */
@@ -49,22 +52,23 @@ public class Department implements Serializable {
     /**
      * Companies collection
      */
-    @ManyToMany
-    @JoinTable(name = "depart_comp", schema = "grupo5_database")
+    @ManyToMany(mappedBy="departments",fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
     private Collection<Company> companies;
 
     /**
      * Areas collection
      */
-    @ManyToMany
-    @JoinTable(name = "depart_area", schema = "grupo5_database")
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name="depart_area",schema="grupo5_database",
+              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
+              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
     private Collection<Area> areas;
 
-    public Long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -118,7 +122,7 @@ public class Department implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (Long) id;
+        hash += (int) id;
         return hash;
     }
     /**

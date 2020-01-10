@@ -7,11 +7,15 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -21,7 +25,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author Yeray
+ * @author Ruben
  */
 @Entity
 @Table(name = "company", schema = "grupo5_database")
@@ -33,14 +37,19 @@ public class Company implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private int id;
    
     private String name;
     private String cif;
-    @OneToMany(mappedBy="company")
+    
+    @OneToMany(mappedBy="company",cascade=CascadeType.ALL)
     private Collection<User> users;
-    @ManyToMany
-    @JoinColumn(name="companies")
+    
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name="company_department",schema="grupo5_database",
+              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
+              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
     private Collection <Department> departments;
 
     public int getId() {
