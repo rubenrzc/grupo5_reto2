@@ -6,6 +6,7 @@
 package entitiesJPA;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.CascadeType;
@@ -114,7 +115,7 @@ public class User implements Serializable {
     private Company company;
 
     @OneToMany(mappedBy = "user",cascade=CascadeType.ALL)
-    private Collection<Document> documents;
+    private Collection<Document> documents = new ArrayList<Document>();
 
     /**
      * 

@@ -5,7 +5,6 @@
  */
 package ejb_package;
 
-import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
 import entitiesJPA.Area;
 import exceptions.CreateException;
 import exceptions.DeleteException;
@@ -16,8 +15,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * EJB class that make the CRUD of the Area entity

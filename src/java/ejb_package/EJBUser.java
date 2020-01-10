@@ -50,14 +50,14 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public User login(User user) throws LoginException, LoginPasswordException {
         User ret = new User();
-        EncryptionClass hash = new EncryptionClass();
+        //EncryptionClass hash = new EncryptionClass();
         try {
             ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
         } catch (NoResultException e) {
             throw new LoginException();
         }
-        String passwordHashDB = hash.hashingText(user.getPassword());
-        user.setPassword(passwordHashDB);
+        //String passwordHashDB = hash.hashingText(user.getPassword());
+        //user.setPassword(passwordHashDB);
         
         ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
         if (ret == null) {

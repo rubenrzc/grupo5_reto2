@@ -55,7 +55,7 @@ public class Document implements Serializable {
 
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id",nullable=true)
     private User user;
 
