@@ -73,7 +73,7 @@ public class Document implements Serializable {
 
     @Lob
     @Basic(fetch=EAGER)
-    private Byte[] documentContent;
+    private byte[] documentContent;
 
     private DocumentStatus status;
 
@@ -129,11 +129,11 @@ public class Document implements Serializable {
         this.visibility = visibility;
     }
 
-    public Byte[] getDocumentContent() {
+    public byte[] getDocumentContent() {
         return documentContent;
     }
 
-    public void setDocumentContent(Byte[] documentContent) {
+    public void setDocumentContent(byte[] documentContent) {
         this.documentContent = documentContent;
     }
 
