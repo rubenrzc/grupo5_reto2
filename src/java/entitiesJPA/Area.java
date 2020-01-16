@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,13 +45,14 @@ public class Area implements Serializable {
     
     private String name;
     
-    @ManyToMany(mappedBy="areas",fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
-    private Collection<Department> departments;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="department_id",nullable=true)
+    private Department department;
     
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name="areas_documents",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
-              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
+              joinColumns=@JoinColumn(name="id_Area", referencedColumnName="id"),
+              inverseJoinColumns=@JoinColumn(name="id_Document", referencedColumnName="id"))
     private Collection<Document> documents;
 
     public int getId() {
@@ -76,15 +78,15 @@ public class Area implements Serializable {
     /**
      * @return the departments
      */
-    
-    public Collection<Department> getDepartments() {
-        return departments;
+    @XmlTransient
+    public Department getDepartments() {
+        return department;
     }
     /**
      * @param departments the departments to set
      */
-    public void setDepartments(Collection<Department> departments) {
-        this.departments = departments;
+    public void setDepartments(Department departments) {
+        this.department = departments;
     }
     /**
      * @return the documents

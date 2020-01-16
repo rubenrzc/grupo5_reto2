@@ -49,8 +49,8 @@ public class Company implements Serializable {
     
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name="company_department",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
-              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
+              joinColumns=@JoinColumn(name="id_company", referencedColumnName="id"),
+              inverseJoinColumns=@JoinColumn(name="id_department", referencedColumnName="id"))
     private Collection <Department> departments;
 
     public int getId() {
@@ -132,7 +132,6 @@ public class Company implements Serializable {
     /**
      * @return the departments
      */
-    @XmlTransient
     public Collection <Department> getDepartments() {
         return departments;
     }

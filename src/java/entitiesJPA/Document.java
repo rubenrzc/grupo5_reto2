@@ -96,6 +96,7 @@ public class Document implements Serializable {
         this.description = description;
     }
 
+    @XmlTransient
     public User getUser() {
         return user;
     }

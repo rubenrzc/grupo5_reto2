@@ -211,7 +211,6 @@ public class User implements Serializable {
      * 
      * @return 
      */
-    @XmlTransient
     public Collection<Document> getDocuments() {
         return documents;
     }

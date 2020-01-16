@@ -18,11 +18,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 
 /**
  *
@@ -58,10 +58,7 @@ public class Department implements Serializable {
     /**
      * Areas collection
      */
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name="depart_area",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_A", referencedColumnName="id"),
-              inverseJoinColumns=@JoinColumn(name="id_B", referencedColumnName="id"))
+    @OneToMany(fetch = FetchType.EAGER, mappedBy="department",cascade=CascadeType.ALL)
     private Collection<Area> areas;
 
     public int getId() {
@@ -104,7 +101,6 @@ public class Department implements Serializable {
     /**
      * @return the areas
      */
-    @XmlTransient
     public Collection<Area> getAreas() {
         return areas;
     }
