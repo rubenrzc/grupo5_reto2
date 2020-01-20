@@ -9,6 +9,7 @@ import entitiesJPA.Area;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBAreaInterface;
 import java.util.Collection;
@@ -37,7 +38,7 @@ public class AreaFacadeREST {
     private EJBAreaInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void create(Area entity) {
         try {
             ejb.createArea(entity);
@@ -49,7 +50,7 @@ public class AreaFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void edit(Area entity) {
         try {
             ejb.updateArea(entity);
@@ -69,9 +70,22 @@ public class AreaFacadeREST {
             throw new InternalServerErrorException(ex.getMessage());
         }
     }
+    
+    @GET
+    @Path("{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Area find(@PathParam("id") Integer id) {
+        Area company = null;
+        try {
+            company = ejb.getCompanyProfile(id);
+        } catch (SelectException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return company;
+    }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Collection<Area> FindAllArea() {
         Collection<Area> ret = null;
         try {

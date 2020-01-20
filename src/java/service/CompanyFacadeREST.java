@@ -6,7 +6,6 @@
 package service;
 
 import entitiesJPA.Company;
-import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
@@ -39,7 +38,7 @@ public class CompanyFacadeREST {
     private EJBCompanyInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void create(Company company) {
         try {
             ejb.createCompany(company);
@@ -51,7 +50,7 @@ public class CompanyFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void edit(Company company) {
         try {
             ejb.updateCompany(company);
@@ -74,7 +73,7 @@ public class CompanyFacadeREST {
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Company find(@PathParam("id") Integer id) {
         Company company = null;
         try {
@@ -86,7 +85,7 @@ public class CompanyFacadeREST {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Collection<Company> findAll() {
         Collection<Company> companies = null;
         try {

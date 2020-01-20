@@ -5,10 +5,12 @@
  */
 package interfaces;
 
+import entitiesJPA.Company;
 import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import java.util.Collection;
 import java.util.List;
@@ -29,5 +31,7 @@ public interface EJBDepartmentInterface {
     public void deleteDepartment(int id)throws DeleteException;
 
     public Collection<Department> getDepartmentList() throws GetCollectionException;
+    
+    public Department getDepartmentProfile(int id) throws SelectException;
 
 }

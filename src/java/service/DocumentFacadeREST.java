@@ -37,7 +37,7 @@ public class DocumentFacadeREST{
     private EJBDocumentInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void createNewDocument(Document document) {
         try {
             ejb.createNewDocument(document);
@@ -47,7 +47,7 @@ public class DocumentFacadeREST{
     }
 
     @PUT
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void updateDocument(Document document) {
         try {
             ejb.updateDocument(document);
@@ -70,13 +70,13 @@ public class DocumentFacadeREST{
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Document find(@PathParam("id") int id) {
         return ejb.findDocumentById(id);
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Collection<Document> findAll() {
         Collection<Document> collection=null;
         try {

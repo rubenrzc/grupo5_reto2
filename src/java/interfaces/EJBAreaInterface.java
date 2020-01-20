@@ -9,6 +9,7 @@ import entitiesJPA.Area;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import java.util.Collection;
 import javax.ejb.Local;
@@ -27,4 +28,6 @@ public interface EJBAreaInterface {
     public void deleteArea(int id)throws DeleteException;
 
     public Collection<Area> getAreaList() throws GetCollectionException;
+    
+    public Area getCompanyProfile(int id) throws SelectException;
 }

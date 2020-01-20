@@ -10,6 +10,7 @@ import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import java.util.List;
 import java.util.logging.Logger;
@@ -68,6 +69,15 @@ public class EJBDepartment implements EJBDepartmentInterface {
         } catch (Exception ex) {
             throw new GetCollectionException(ex.getMessage());
 
+        }
+    }
+
+    @Override
+    public Department getDepartmentProfile(int id) throws SelectException {
+        try {
+            return em.find(Department.class, id);
+        } catch (Exception ex) {
+            throw new SelectException(ex.getMessage());
         }
     }
 

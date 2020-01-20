@@ -41,7 +41,7 @@ public class UserFacadeREST {
     
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public User find(@PathParam("id") int id) {   
         return ejb.findUserById(id);
     }
@@ -54,7 +54,7 @@ public class UserFacadeREST {
      */
     @GET
     @Path("{login}/{password}") //PARA LOGIN
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public User login(@PathParam("login") String login,@PathParam("password") String password) {
         User ret = new User();
         User user = new User();
@@ -75,7 +75,7 @@ public class UserFacadeREST {
      * @return 
      */
     @GET
-    @Produces({MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON})
     public Collection<User> findAll() {
         Collection<User> collection=null;
         try {
@@ -93,7 +93,7 @@ public class UserFacadeREST {
      */
     @PUT
     @Path("{email}") //buscar contraseña por email apra enviar por correo
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void recoverPassword(User user) {
         try {
             ejb.recoverPassword(user);
@@ -107,7 +107,7 @@ public class UserFacadeREST {
      * @param user 
      */
     @POST
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void create(User user) {
         try {
             ejb.createUser(user);
@@ -121,7 +121,7 @@ public class UserFacadeREST {
      * @param user 
      */
     @PUT
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void edit(User user) {
         try {
             ejb.updateUser(user);

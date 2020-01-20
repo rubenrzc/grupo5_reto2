@@ -9,6 +9,7 @@ import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
@@ -37,7 +38,7 @@ public class DepartmentFacadeREST {
     private EJBDepartmentInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void create(Department entity) {
         try {
             ejb.createDepartment(entity);
@@ -49,7 +50,7 @@ public class DepartmentFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON})
     public void edit(Department entity) {
         try {
             ejb.updateDepartment(entity);
@@ -72,7 +73,20 @@ public class DepartmentFacadeREST {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_XML})
+    @Path("{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Department find(@PathParam("id") Integer id) {
+        Department department = null;
+        try {
+            department = ejb.getDepartmentProfile(id);
+        } catch (SelectException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return department;
+    }    
+    
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
     public Collection<Department> FindAllDepartment() {
         Collection<Department> ret = null;
         try {

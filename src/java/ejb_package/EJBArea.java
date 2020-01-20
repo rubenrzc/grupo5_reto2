@@ -9,6 +9,7 @@ import entitiesJPA.Area;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBAreaInterface;
 import javax.ejb.Stateless;
@@ -83,6 +84,15 @@ public class EJBArea implements EJBAreaInterface {
         } catch (Exception e) {
             // LOGGER.log(Level.WARNING, "IMPOSIBLE GET AREA LIST");
             throw new GetCollectionException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Area getCompanyProfile(int id) throws SelectException {
+        try {
+            return em.find(Area.class, id);
+        } catch (Exception ex) {
+            throw new SelectException(ex.getMessage());
         }
     }
 }
