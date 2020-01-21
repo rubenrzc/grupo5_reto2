@@ -19,10 +19,12 @@ import interfaces.EJBDocumentInterface;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
+
 
 /**
  *
- * @author stone
+ * @author Fran
  */
 @Stateless
 public class EJBDocument implements EJBDocumentInterface {
@@ -64,9 +66,18 @@ public class EJBDocument implements EJBDocumentInterface {
         try {
             em.merge(document);
             em.flush();// actualiza al momento base de datos
-
         } catch (Exception ex) {
             throw new UpdateException(ex.getMessage());
+        }
+    }
+    
+    public void updateDocumentByUser(int user_id) throws UpdateException {
+        try {
+            Query q = em.createQuery("Update document a set a.user_id=1 "
+                    + "where a.user_id:=user_id");
+            q.setParameter("user_id", user_id);
+            q.executeUpdate();
+        } catch (Exception e) {
         }
     }
 
@@ -77,6 +88,4 @@ public class EJBDocument implements EJBDocumentInterface {
             throw new DeleteException(ex.getMessage());
         }
     }
-
-
 }

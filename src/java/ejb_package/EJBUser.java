@@ -128,16 +128,16 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public void deleteUser(User user) throws DeleteException {
         try {
-            Query qdoc = em.createQuery("Select a from document a where a.user_id := user_id");
+           /* Query qdoc = em.createQuery("Select a from document a where a.user_id := user_id");
             qdoc.setParameter("user_id", user.getId());
             List docsByUsu = qdoc.getResultList(); //find docs by user
             if (docsByUsu!=null) {
-               /* Query updateDoc = em.createQuery("Update document a set a.user_id=1 where a.user_id=:user_id");
+                Query updateDoc = em.createQuery("Update document a set a.user_id=1 where a.user_id=:user_id");
                 for (Object i:docsByUsu) {
                     updateDoc.setParameter("user_id", i.getId());
                     updateDoc.executeUpdate();
-                }*/
-            }
+                }
+            }*/
 
             Query q1 = em.createNamedQuery("DeleteUser").setParameter("id", user.getId());
             q1.executeUpdate();

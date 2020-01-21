@@ -5,6 +5,7 @@
  */
 package service;
 
+import entitiesJPA.Document;
 import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
@@ -14,6 +15,7 @@ import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
+import interfaces.EJBDocumentInterface;
 import interfaces.EJBUserInterface;
 import java.util.Set;
 import java.util.logging.Level;
@@ -32,13 +34,16 @@ import javax.ws.rs.core.MediaType;
 
 /**
  *
- * @author 2dam
+ * @author Fran
  */
 @Path("user")
 public class UserFacadeREST {
 
-    @EJB(beanName="EJBUser")
+    @EJB
     private EJBUserInterface ejb;
+    
+    @EJB
+    private EJBDocumentInterface ejbDoc;
     
     @GET
     @Path("{id}")
@@ -139,12 +144,16 @@ public class UserFacadeREST {
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id")Integer id) {
+    public void remove(@PathParam("id")Integer id) throws InternalServerErrorException{
         User user = new User();
         user.setId(id);
         try {
+            ejbDoc.updateDocumentByUser(id);
             ejb.deleteUser(user);
         } catch (DeleteException ex) {
+            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException(ex.getMessage());
+        } catch (UpdateException ex) {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException(ex.getMessage());
         }

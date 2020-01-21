@@ -16,7 +16,7 @@ import javax.ejb.Local;
 
 /**
  *
- * @author stone
+ * @author Fran
  */
 @Local
 public interface EJBDocumentInterface {
@@ -31,4 +31,5 @@ public interface EJBDocumentInterface {
 
     public Document findDocumentById(int id) throws SelectException;
     
+    public void updateDocumentByUser(int user_id) throws UpdateException;
 }
