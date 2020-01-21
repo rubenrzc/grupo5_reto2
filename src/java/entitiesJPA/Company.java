@@ -6,7 +6,7 @@
 package entitiesJPA;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Set;
 import java.util.LinkedHashSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -45,13 +45,13 @@ public class Company implements Serializable {
     private String cif;
     
     @OneToMany(fetch = FetchType.EAGER, mappedBy="company",cascade=CascadeType.ALL)
-    private Collection<User> users;
+    private Set<User> users;
     
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="company_department",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_company", referencedColumnName="id"),
-              inverseJoinColumns=@JoinColumn(name="id_department", referencedColumnName="id"))
-    private Collection <Department> departments;
+              joinColumns=@JoinColumn(name="id_company"),
+              inverseJoinColumns=@JoinColumn(name="id_department"))
+    private Set <Department> departments;
 
     public int getId() {
         return id;
@@ -118,28 +118,28 @@ public class Company implements Serializable {
      * @return the users
      */
     @XmlTransient
-    public Collection<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
     /**
      * @param users the users to set
      */
-    public void setUsers(Collection<User> users) {
+    public void setUsers(Set<User> users) {
         this.users = users;
     }
 
     /**
      * @return the departments
      */
-    public Collection <Department> getDepartments() {
+    public Set <Department> getDepartments() {
         return departments;
     }
 
     /**
      * @param departments the departments to set
      */
-    public void setDepartments(Collection <Department> departments) {
+    public void setDepartments(Set <Department> departments) {
         this.departments = departments;
     }
  

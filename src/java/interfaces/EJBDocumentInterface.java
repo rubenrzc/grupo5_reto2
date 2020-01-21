@@ -9,8 +9,9 @@ import entitiesJPA.Document;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.Collection;
+import java.util.Set;
 import javax.ejb.Local;
 
 /**
@@ -26,8 +27,8 @@ public interface EJBDocumentInterface {
     
     public void deleteDocument(Document document)throws DeleteException;
 
-    public Collection<Document> getDocumentList() throws GetCollectionException;
+    public Set<Document> getDocumentList() throws GetCollectionException;
 
-    public Document findDocumentById(int id);
+    public Document findDocumentById(int id) throws SelectException;
     
 }

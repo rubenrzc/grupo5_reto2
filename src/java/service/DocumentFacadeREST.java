@@ -9,9 +9,10 @@ import entitiesJPA.Document;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBDocumentInterface;
-import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -19,6 +20,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -37,7 +39,7 @@ public class DocumentFacadeREST{
     private EJBDocumentInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void createNewDocument(Document document) {
         try {
             ejb.createNewDocument(document);
@@ -47,7 +49,7 @@ public class DocumentFacadeREST{
     }
 
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void updateDocument(Document document) {
         try {
             ejb.updateDocument(document);
@@ -70,15 +72,21 @@ public class DocumentFacadeREST{
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Document find(@PathParam("id") int id) {
-        return ejb.findDocumentById(id);
+    @Produces({MediaType.APPLICATION_XML})
+    public Document find(@PathParam("id") int id) throws InternalServerErrorException{
+        Document ret = null;
+        try {
+            ret = ejb.findDocumentById(id);
+        } catch (SelectException e) {
+            throw new InternalServerErrorException("No existe documento con esta id en la base de datos.");
+        }
+        return ret;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Document> findAll() {
-        Collection<Document> collection=null;
+    @Produces({MediaType.APPLICATION_XML})
+    public Set<Document> findAll() {
+        Set<Document> collection=null;
         try {
             collection = ejb.getDocumentList();
         } catch (GetCollectionException ex) {

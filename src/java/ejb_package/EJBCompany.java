@@ -6,19 +6,18 @@
 package ejb_package;
 
 import entitiesJPA.Company;
-import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBCompanyInterface;
+import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import static javax.ws.rs.client.Entity.entity;
 
 /**
  *
@@ -55,26 +54,32 @@ public class EJBCompany implements EJBCompanyInterface {
     public void deleteCompany(int id) throws DeleteException {
         try {
             em.remove(em.find(Company.class, id));
+            em.flush();
         } catch (Exception ex) {
             throw new DeleteException(ex.getMessage());
         }
     }
 
     @Override
-    public List<Company> getCompanyList() throws GetCollectionException {
+    public Set<Company> getCompanyList() throws GetCollectionException {
+        List<Company> listCompany = null;
         try {
-            return em.createNamedQuery("findAllCompanies").getResultList();
+            listCompany = em.createNamedQuery("findAllCompanies").getResultList();
         } catch (Exception ex) {
             throw new GetCollectionException(ex.getMessage());
         }
+        Set<Company> ret = new HashSet<Company>(listCompany);
+        return ret;
     }
 
     @Override
     public Company getCompanyProfile(int id) throws SelectException {
+        Company ret = null;
         try {
-            return em.find(Company.class, id);
+            ret = em.find(Company.class, id);
         } catch (Exception ex) {
             throw new SelectException(ex.getMessage());
         }
+        return ret;
     }
 }

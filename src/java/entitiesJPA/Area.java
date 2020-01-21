@@ -6,12 +6,11 @@
 package entitiesJPA;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,10 +18,20 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+@NamedQueries({
+    @NamedQuery(name="FindAllAreas",
+        query="SELECT a FROM Area a ")
+    ,
+    @NamedQuery(
+            name = "DeleteArea",
+            query = "delete from Area a where a.id=:id")
+})
 
 
 /**
@@ -31,8 +40,6 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name="area",schema="grupo5_database")
-@NamedQuery(name="FindAllAreas",
-        query="SELECT a FROM Area a ")
 @XmlRootElement
 public class Area implements Serializable {
 
@@ -49,11 +56,11 @@ public class Area implements Serializable {
     @JoinColumn(name="department_id",nullable=true)
     private Department department;
     
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name="areas_documents",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_Area", referencedColumnName="id"),
-              inverseJoinColumns=@JoinColumn(name="id_Document", referencedColumnName="id"))
-    private Collection<Document> documents;
+              joinColumns=@JoinColumn(name="id_Area"),
+              inverseJoinColumns=@JoinColumn(name="id_Document"))
+    private Set<Document> documents;
 
     public int getId() {
         return id;
@@ -92,13 +99,13 @@ public class Area implements Serializable {
      * @return the documents
      */
     
-    public Collection<Document> getDocuments() {
+    public Set<Document> getDocuments() {
         return documents;
     }
     /**
      * @param documents the documents to set
      */
-    public void setDocuments(Collection<Document> documents) {
+    public void setDocuments(Set<Document> documents) {
         this.documents = documents;
     }
     @Override

@@ -12,7 +12,7 @@ import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBAreaInterface;
-import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -38,7 +38,7 @@ public class AreaFacadeREST {
     private EJBAreaInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void create(Area entity) {
         try {
             ejb.createArea(entity);
@@ -50,7 +50,7 @@ public class AreaFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void edit(Area entity) {
         try {
             ejb.updateArea(entity);
@@ -73,25 +73,27 @@ public class AreaFacadeREST {
     
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Area find(@PathParam("id") Integer id) {
+    @Produces({MediaType.APPLICATION_XML})
+    public Area find(@PathParam("id") Integer id) throws InternalServerErrorException{
         Area company = null;
         try {
             company = ejb.getCompanyProfile(id);
         } catch (SelectException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("No hay area con esa id en la base de datos.");
         }
         return company;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Area> FindAllArea() {
-        Collection<Area> ret = null;
+    @Produces({MediaType.APPLICATION_XML})
+    public Set<Area> FindAllArea() throws InternalServerErrorException{
+        Set<Area> ret = null;
         try {
             ret = ejb.getAreaList();
         } catch (GetCollectionException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("No hay areas en la base de datos.");
         }
         return ret;
     }

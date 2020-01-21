@@ -6,7 +6,7 @@
 package entitiesJPA;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Set;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -40,7 +40,8 @@ import javax.xml.bind.annotation.XmlTransient;
     ,
     @NamedQuery(
             name = "findAllDocuments",
-            query = "select a from Document a")
+            query = "select a from Document a"),
+    
 })
 
 @Entity
@@ -62,8 +63,8 @@ public class Document implements Serializable {
     @JoinColumn(name="user_id",nullable=true)
     private User user;
 
-    @ManyToMany(mappedBy = "documents", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private Collection<Area> areas;
+    @ManyToMany(mappedBy = "documents", fetch = FetchType.EAGER)
+    private Set<Area> areas;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
@@ -106,11 +107,11 @@ public class Document implements Serializable {
     }
 
     @XmlTransient
-    public Collection<Area> getAreas() {
+    public Set<Area> getAreas() {
         return areas;
     }
 
-    public void setAreas(Collection<Area> areas) {
+    public void setAreas(Set<Area> areas) {
         this.areas = areas;
     }
 

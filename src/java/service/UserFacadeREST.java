@@ -12,9 +12,10 @@ import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBUserInterface;
-import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -41,9 +42,15 @@ public class UserFacadeREST {
     
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public User find(@PathParam("id") int id) {   
-        return ejb.findUserById(id);
+    @Produces({MediaType.APPLICATION_XML})
+    public User find(@PathParam("id") int id) throws InternalServerErrorException{   
+        User ret = null;
+        try {
+            ret = ejb.findUserById(id);
+        } catch (SelectException ex) {
+            throw new InternalServerErrorException("No hay usuario con esa id en la base de datos.");
+        }
+        return ret;
     }
     
     /**
@@ -54,8 +61,8 @@ public class UserFacadeREST {
      */
     @GET
     @Path("{login}/{password}") //PARA LOGIN
-    @Produces({MediaType.APPLICATION_JSON})
-    public User login(@PathParam("login") String login,@PathParam("password") String password) {
+    @Produces({MediaType.APPLICATION_XML})
+    public User login(@PathParam("login") String login,@PathParam("password") String password) throws InternalServerErrorException{
         User ret = new User();
         User user = new User();
         user.setLogin(login);
@@ -75,9 +82,9 @@ public class UserFacadeREST {
      * @return 
      */
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public Collection<User> findAll() {
-        Collection<User> collection=null;
+    @Produces({MediaType.APPLICATION_XML})
+    public Set<User> findAll() {
+        Set<User> collection=null;
         try {
             collection = ejb.getUserList();
         } catch (GetCollectionException ex) {
@@ -93,7 +100,7 @@ public class UserFacadeREST {
      */
     @PUT
     @Path("{email}") //buscar contraseña por email apra enviar por correo
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void recoverPassword(User user) {
         try {
             ejb.recoverPassword(user);
@@ -107,7 +114,7 @@ public class UserFacadeREST {
      * @param user 
      */
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void create(User user) {
         try {
             ejb.createUser(user);
@@ -121,7 +128,7 @@ public class UserFacadeREST {
      * @param user 
      */
     @PUT
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void edit(User user) {
         try {
             ejb.updateUser(user);

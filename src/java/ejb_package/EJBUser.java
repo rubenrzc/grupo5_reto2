@@ -5,6 +5,7 @@
  */
 package ejb_package;
 
+import entitiesJPA.Document;
 import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
@@ -12,10 +13,13 @@ import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
 import utils.MailSender;
 import interfaces.EJBUserInterface;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javax.persistence.EntityManager;
@@ -23,6 +27,7 @@ import javax.ejb.Stateless;
 import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import utils.EncryptionClass;
 
 /**
@@ -43,8 +48,14 @@ public class EJBUser implements EJBUserInterface {
         em.merge(user);
     }
 
-    public User findUserById(int id) {
-        return (User) em.createNamedQuery("findById").setParameter("id", id).getSingleResult();
+    public User findUserById(int id) throws SelectException {
+        User ret = null;
+        try {
+            ret = (User) em.createNamedQuery("findById").setParameter("id", id).getSingleResult();
+        } catch (NoResultException e) {
+            throw new SelectException();
+        }
+        return ret;
     }
 
     @Override
@@ -58,7 +69,7 @@ public class EJBUser implements EJBUserInterface {
         }
         //String passwordHashDB = hash.hashingText(user.getPassword());
         //user.setPassword(passwordHashDB);
-        
+
         ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
         if (ret == null) {
             throw new LoginPasswordException();
@@ -67,12 +78,15 @@ public class EJBUser implements EJBUserInterface {
     }
 
     @Override
-    public Collection<User> getUserList() throws GetCollectionException {
+    public Set<User> getUserList() throws GetCollectionException {
+        List<User> listUser = null;
         try {
-            return em.createNamedQuery("findAllUsers").getResultList();
+            listUser = em.createNamedQuery("findAllUsers").getResultList();
         } catch (Exception ex) {
             throw new GetCollectionException(ex.getMessage());
         }
+        Set<User> ret = new HashSet<User>(listUser);
+        return ret;
     }
 
     @Override
@@ -113,7 +127,24 @@ public class EJBUser implements EJBUserInterface {
 
     @Override
     public void deleteUser(User user) throws DeleteException {
-        em.remove(em.merge(user));
+        try {
+            Query qdoc = em.createQuery("Select a from document a where a.user_id := user_id");
+            qdoc.setParameter("user_id", user.getId());
+            List docsByUsu = qdoc.getResultList(); //find docs by user
+            if (docsByUsu!=null) {
+               /* Query updateDoc = em.createQuery("Update document a set a.user_id=1 where a.user_id=:user_id");
+                for (Object i:docsByUsu) {
+                    updateDoc.setParameter("user_id", i.getId());
+                    updateDoc.executeUpdate();
+                }*/
+            }
+
+            Query q1 = em.createNamedQuery("DeleteUser").setParameter("id", user.getId());
+            q1.executeUpdate();
+            em.flush();
+        } catch (Exception ex) {
+            throw new DeleteException(ex.getMessage());
+        }
     }
 
     @Override

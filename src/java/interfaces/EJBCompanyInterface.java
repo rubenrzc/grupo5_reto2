@@ -12,7 +12,7 @@ import exceptions.DeleteException;
 import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.Collection;
+import java.util.Set;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -31,6 +31,6 @@ public interface EJBCompanyInterface {
 
     public Company getCompanyProfile(int id) throws SelectException;
 
-    public Collection<Company> getCompanyList() throws GetCollectionException;
+    public Set<Company> getCompanyList() throws GetCollectionException;
 
 }

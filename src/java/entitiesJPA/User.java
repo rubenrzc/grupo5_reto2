@@ -7,7 +7,7 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Set;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -32,14 +32,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 
 
 /**
  *
- * @author Francisco Romero Alonso
+ * @author Francisco Romero Alonso //IMPLEMENTAR BUSQUEDA POR COMPAÑIA
  */
 @NamedQueries({
     @NamedQuery(
@@ -57,6 +56,9 @@ import org.hibernate.validator.constraints.Email;
     @NamedQuery(
         name="findById",
         query="Select a from User a where a.id=:id"),
+    @NamedQuery(
+            name = "DeleteUser",
+            query = "delete from User a where a.id=:id")
 })
 
 @Entity
@@ -118,8 +120,8 @@ public class User implements Serializable {
     @JoinColumn(name="company_id",nullable=true)
     private Company company;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user",cascade=CascadeType.ALL)
-    private Collection<Document> documents = new ArrayList<Document>();
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private Set<Document> documents;
 
     /**
      * 
@@ -211,7 +213,7 @@ public class User implements Serializable {
      * 
      * @return 
      */
-    public Collection<Document> getDocuments() {
+    public Set<Document> getDocuments() {
         return documents;
     }
 
@@ -219,7 +221,7 @@ public class User implements Serializable {
      * 
      * @param documents 
      */
-    public void setDocuments(Collection<Document> documents) {
+    public void setDocuments(Set<Document> documents) {
         this.documents = documents;
     }
 

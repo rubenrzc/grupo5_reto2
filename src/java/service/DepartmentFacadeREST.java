@@ -22,7 +22,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import interfaces.EJBDepartmentInterface;
-import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.InternalServerErrorException;
@@ -38,7 +38,7 @@ public class DepartmentFacadeREST {
     private EJBDepartmentInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void create(Department entity) {
         try {
             ejb.createDepartment(entity);
@@ -50,7 +50,7 @@ public class DepartmentFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void edit(Department entity) {
         try {
             ejb.updateDepartment(entity);
@@ -74,25 +74,27 @@ public class DepartmentFacadeREST {
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Department find(@PathParam("id") Integer id) {
+    @Produces({MediaType.APPLICATION_XML})
+    public Department find(@PathParam("id") Integer id) throws InternalServerErrorException{
         Department department = null;
         try {
             department = ejb.getDepartmentProfile(id);
         } catch (SelectException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("No existe departamento con esta id en la base de datos");
         }
         return department;
     }    
     
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Department> FindAllDepartment() {
-        Collection<Department> ret = null;
+    @Produces({MediaType.APPLICATION_XML})
+    public Set<Department> FindAllDepartment() throws InternalServerErrorException{
+        Set<Department> ret = null;
         try {
             ret = ejb.getDepartmentList();
         } catch (GetCollectionException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("No hay departamentos en la base de datos");
         }
         return ret;
     }

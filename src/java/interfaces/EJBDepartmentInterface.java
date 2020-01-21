@@ -12,7 +12,7 @@ import exceptions.DeleteException;
 import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.Collection;
+import java.util.Set;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -30,7 +30,7 @@ public interface EJBDepartmentInterface {
     
     public void deleteDepartment(int id)throws DeleteException;
 
-    public Collection<Department> getDepartmentList() throws GetCollectionException;
+    public Set<Department> getDepartmentList() throws GetCollectionException;
     
     public Department getDepartmentProfile(int id) throws SelectException;
 

@@ -24,7 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import interfaces.EJBCompanyInterface;
-import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 
 /**
@@ -38,7 +38,7 @@ public class CompanyFacadeREST {
     private EJBCompanyInterface ejb;
 
     @POST
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void create(Company company) {
         try {
             ejb.createCompany(company);
@@ -50,7 +50,7 @@ public class CompanyFacadeREST {
 
     @PUT
     @Path("{id}")
-    @Consumes({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_XML})
     public void edit(Company company) {
         try {
             ejb.updateCompany(company);
@@ -73,26 +73,27 @@ public class CompanyFacadeREST {
 
     @GET
     @Path("{id}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Company find(@PathParam("id") Integer id) {
+    @Produces({MediaType.APPLICATION_XML})
+    public Company find(@PathParam("id") Integer id) throws InternalServerErrorException{
         Company company = null;
         try {
             company = ejb.getCompanyProfile(id);
         } catch (SelectException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("No hay ninguna compañia con este id en la base de datos.");
         }
         return company;
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Company> findAll() {
-        Collection<Company> companies = null;
+    @Produces({MediaType.APPLICATION_XML})
+    public Set<Company> findAll() throws InternalServerErrorException{
+        Set<Company> companies = null;
         try {
             companies = ejb.getCompanyList();
         } catch (GetCollectionException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
-            throw new InternalServerErrorException(ex.getMessage());
+            throw new InternalServerErrorException("No hay compañias en la base de datos.");
         }
         return companies;
     }

@@ -12,8 +12,9 @@ import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.Collection;
+import java.util.Set;
 import javax.ejb.Local;
 
 /**
@@ -29,12 +30,12 @@ public interface EJBUserInterface {
     
     public User login(User user) throws LoginException,LoginPasswordException;
     
-    public Collection<User> getUserList() throws GetCollectionException;
+    public Set<User> getUserList() throws GetCollectionException;
     
     public void recoverPassword(User user) throws RecoverPasswordException;
     
     public void deleteUser(User user) throws DeleteException;
 
-    public User findUserById(int id);
+    public User findUserById(int id) throws SelectException;
     
 }

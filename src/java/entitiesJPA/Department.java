@@ -6,7 +6,7 @@
 package entitiesJPA;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,8 +14,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -52,14 +50,14 @@ public class Department implements Serializable {
     /**
      * Companies collection
      */
-    @ManyToMany(mappedBy="departments",fetch=FetchType.EAGER,cascade=CascadeType.REMOVE)
-    private Collection<Company> companies;
+    @ManyToMany(mappedBy="departments",fetch=FetchType.EAGER)
+    private Set<Company> companies;
 
     /**
      * Areas collection
      */
     @OneToMany(fetch = FetchType.EAGER, mappedBy="department",cascade=CascadeType.ALL)
-    private Collection<Area> areas;
+    private Set<Area> areas;
 
     public int getId() {
         return id;
@@ -87,28 +85,28 @@ public class Department implements Serializable {
      * @return the companies
      */
     @XmlTransient
-    public Collection<Company> getCompanies() {
+    public Set<Company> getCompanies() {
         return companies;
     }
 
     /**
      * @param companies the companies to set
      */
-    public void setCompanies(Collection<Company> companies) {
+    public void setCompanies(Set<Company> companies) {
         this.companies = companies;
     }
 
     /**
      * @return the areas
      */
-    public Collection<Area> getAreas() {
+    public Set<Area> getAreas() {
         return areas;
     }
 
     /**
      * @param areas the areas to set
      */
-    public void setAreas(Collection<Area> areas) {
+    public void setAreas(Set<Area> areas) {
         this.areas = areas;
     }
     /**

@@ -12,10 +12,13 @@ import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBAreaInterface;
+import java.util.HashSet;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Collection;
+import java.util.Set;
+import javax.persistence.Query;
 
 /**
  * EJB class that make the CRUD of the Area entity
@@ -65,7 +68,9 @@ public class EJBArea implements EJBAreaInterface {
      */
     public void deleteArea(int id) throws DeleteException {
         try {
-            em.remove(em.find(Area.class, id));
+            Query q1 = em.createNamedQuery("DeleteArea").setParameter("id", id);
+            q1.executeUpdate();
+            em.flush();
         } catch (Exception e) {
             throw new DeleteException(e.getMessage());
         }
@@ -78,13 +83,16 @@ public class EJBArea implements EJBAreaInterface {
      * @return a area list collection
      * @throws GetCollectionException
      */
-    public Collection<Area> getAreaList() throws GetCollectionException {
+    public Set<Area> getAreaList() throws GetCollectionException {
+        List<Area> listAreas = null;
         try {
-            return em.createNamedQuery("FindAllAreas").getResultList();
+            listAreas = em.createNamedQuery("FindAllAreas").getResultList();
         } catch (Exception e) {
             // LOGGER.log(Level.WARNING, "IMPOSIBLE GET AREA LIST");
             throw new GetCollectionException(e.getMessage());
         }
+        Set<Area> ret = new HashSet<Area>(listAreas);
+        return ret;
     }
 
     @Override

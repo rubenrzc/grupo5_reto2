@@ -5,21 +5,20 @@
  */
 package ejb_package;
 
-import entitiesJPA.Company;
 import entitiesJPA.Department;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
 import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.List;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import interfaces.EJBDepartmentInterface;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.NoResultException;
 
 /**
  *
@@ -54,6 +53,7 @@ public class EJBDepartment implements EJBDepartmentInterface {
     public void deleteDepartment(int id) throws DeleteException {
         try {
             em.remove(em.find(Department.class, id));
+            em.flush();
         } catch (Exception ex) {
             throw new DeleteException(ex.getMessage());
         }
@@ -63,20 +63,22 @@ public class EJBDepartment implements EJBDepartmentInterface {
      *
      * @return @throws exceptions.GetCollectionException
      */
-    public Collection<Department> getDepartmentList() throws GetCollectionException {
+    public Set<Department> getDepartmentList() throws GetCollectionException {
+        List<Department> listDepartment = null;
         try {
-            return em.createNamedQuery("findAllDepartments").getResultList();
+            listDepartment = em.createNamedQuery("findAllDepartments").getResultList();
         } catch (Exception ex) {
             throw new GetCollectionException(ex.getMessage());
-
         }
+        Set<Department> ret = new HashSet<Department>(listDepartment);
+        return ret;
     }
 
     @Override
     public Department getDepartmentProfile(int id) throws SelectException {
         try {
             return em.find(Department.class, id);
-        } catch (Exception ex) {
+        } catch (NoResultException ex) {
             throw new SelectException(ex.getMessage());
         }
     }

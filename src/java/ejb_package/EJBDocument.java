@@ -5,18 +5,20 @@
  */
 package ejb_package;
 
-import entitiesJPA.Department;
 import entitiesJPA.Document;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
+import exceptions.SelectException;
 import exceptions.UpdateException;
-import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import interfaces.EJBDocumentInterface;
+import java.util.HashSet;
+import java.util.List;
+import javax.persistence.NoResultException;
 
 /**
  *
@@ -28,16 +30,25 @@ public class EJBDocument implements EJBDocumentInterface {
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
-    public Collection<Document> getDocumentList() throws GetCollectionException {
+    public Set<Document> getDocumentList() throws GetCollectionException {
+        List<Document> listDocument = null;
         try {
-            return em.createNamedQuery("findAllDocuments").getResultList();
+            listDocument = em.createNamedQuery("findAllDocuments").getResultList();
         } catch (Exception ex) {
             throw new GetCollectionException(ex.getMessage());
         }
+        Set<Document> ret = new HashSet<Document>(listDocument);
+        return ret;
     }
     
-    public Document findDocumentById(int id){
-        return (Document) em.createNamedQuery("findDocumentById").setParameter("id", id).getSingleResult();
+    public Document findDocumentById(int id) throws SelectException{
+        Document ret = null;
+        try {
+            ret =(Document) em.createNamedQuery("findDocumentById").setParameter("id", id).getSingleResult();
+        } catch (NoResultException e) {
+            throw new SelectException();
+        }
+        return ret;
     }
 
     @Override
