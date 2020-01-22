@@ -68,16 +68,18 @@ public class EJBUser implements EJBUserInterface {
         } catch (NoResultException e) {
             throw new LoginException();
         }
-        if (user.getStatus().equals(UserStatus.DISABLED)){
+        UserStatus x = ret.getStatus();
+        if (x == UserStatus.ENABLED) {
+            ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
+            if (ret == null) {
+                throw new LoginPasswordException();
+            }
+        } else {
             throw new DisabledUserException();
         }
         //String passwordHashDB = hash.hashingText(user.getPassword());
         //user.setPassword(passwordHashDB);
 
-        ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
-        if (ret == null) {
-            throw new LoginPasswordException();
-        }
         return ret;
     }
 
@@ -148,8 +150,8 @@ public class EJBUser implements EJBUserInterface {
         user.setPassword(hashPassword);
         em.persist(user);
     }
-    
-    public void disabledUserByCompany(int company_id)throws UpdateException {
+
+    public void disabledUserByCompany(int company_id) throws UpdateException {
         try {
             Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
             q1.setParameter("company_id", company_id);

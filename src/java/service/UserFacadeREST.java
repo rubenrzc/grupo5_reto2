@@ -8,6 +8,7 @@ package service;
 import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
+import exceptions.DisabledUserException;
 import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.resource.spi.UnavailableException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -74,9 +76,11 @@ public class UserFacadeREST {
         try {
             ret = ejb.login(user);
         } catch (LoginPasswordException ex) {
-            throw new InternalServerErrorException("The login does not exist.");
+            throw new InternalServerErrorException("Login de usuario incorrecto.");
         } catch (LoginException ex) {
-            throw new InternalServerErrorException("The password is incorrect.");
+            throw new InternalServerErrorException("Contraseña incorrecta.");
+        } catch (DisabledUserException ex) {
+            throw new InternalServerErrorException("Usuario no disponible, consulte con su empresa/entidad.");
         }
         return ret;
     }
