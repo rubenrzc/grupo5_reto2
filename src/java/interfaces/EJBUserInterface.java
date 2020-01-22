@@ -8,6 +8,7 @@ package interfaces;
 import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
+import exceptions.DisabledUserException;
 import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
@@ -28,7 +29,7 @@ public interface EJBUserInterface {
     
     public void updateUser(User user) throws UpdateException;
     
-    public User login(User user) throws LoginException,LoginPasswordException;
+    public User login(User user) throws LoginException,LoginPasswordException,DisabledUserException;
     
     public Set<User> getUserList() throws GetCollectionException;
     
@@ -38,4 +39,5 @@ public interface EJBUserInterface {
 
     public User findUserById(int id) throws SelectException;
     
+     public void disabledUserByCompany(int company_id)throws UpdateException;    
 }

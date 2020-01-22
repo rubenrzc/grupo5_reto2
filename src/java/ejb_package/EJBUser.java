@@ -5,10 +5,11 @@
  */
 package ejb_package;
 
-import entitiesJPA.Document;
 import entitiesJPA.User;
+import entitiesJPA.UserStatus;
 import exceptions.CreateException;
 import exceptions.DeleteException;
+import exceptions.DisabledUserException;
 import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
@@ -59,13 +60,16 @@ public class EJBUser implements EJBUserInterface {
     }
 
     @Override
-    public User login(User user) throws LoginException, LoginPasswordException {
+    public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
         //EncryptionClass hash = new EncryptionClass();
         try {
             ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
         } catch (NoResultException e) {
             throw new LoginException();
+        }
+        if (user.getStatus().equals(UserStatus.DISABLED)){
+            throw new DisabledUserException();
         }
         //String passwordHashDB = hash.hashingText(user.getPassword());
         //user.setPassword(passwordHashDB);
@@ -128,17 +132,6 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public void deleteUser(User user) throws DeleteException {
         try {
-           /* Query qdoc = em.createQuery("Select a from document a where a.user_id := user_id");
-            qdoc.setParameter("user_id", user.getId());
-            List docsByUsu = qdoc.getResultList(); //find docs by user
-            if (docsByUsu!=null) {
-                Query updateDoc = em.createQuery("Update document a set a.user_id=1 where a.user_id=:user_id");
-                for (Object i:docsByUsu) {
-                    updateDoc.setParameter("user_id", i.getId());
-                    updateDoc.executeUpdate();
-                }
-            }*/
-
             Query q1 = em.createNamedQuery("DeleteUser").setParameter("id", user.getId());
             q1.executeUpdate();
             em.flush();
@@ -154,6 +147,16 @@ public class EJBUser implements EJBUserInterface {
         hashPassword = hash.hashingText(hashPassword);
         user.setPassword(hashPassword);
         em.persist(user);
+    }
+    
+    public void disabledUserByCompany(int company_id)throws UpdateException {
+        try {
+            Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
+            q1.setParameter("company_id", company_id);
+            q1.executeUpdate();
+        } catch (Exception ex) {
+            throw new UpdateException(ex.getMessage());
+        }
     }
 
 }

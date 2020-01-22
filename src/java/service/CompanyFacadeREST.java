@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import interfaces.EJBCompanyInterface;
+import interfaces.EJBUserInterface;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -36,6 +37,9 @@ public class CompanyFacadeREST {
 
     @EJB(beanName = "EJBCompany")
     private EJBCompanyInterface ejb;
+    
+    @EJB
+    private EJBUserInterface ejbUser;
 
     @POST
     @Consumes({MediaType.APPLICATION_XML})
@@ -64,9 +68,13 @@ public class CompanyFacadeREST {
     @Path("{id}")
     public void remove(@PathParam("id") Integer id) {
         try {
+            ejbUser.disabledUserByCompany(id);
             ejb.deleteCompany(id);
         } catch (DeleteException ex) {
             Logger.getLogger(CompanyFacadeREST.class.getName()).severe(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        } catch (UpdateException ex) {
+            Logger.getLogger(CompanyFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException(ex.getMessage());
         }
     }

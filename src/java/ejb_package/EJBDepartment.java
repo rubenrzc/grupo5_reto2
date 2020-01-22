@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 
 /**
  *
@@ -52,7 +53,9 @@ public class EJBDepartment implements EJBDepartmentInterface {
      */
     public void deleteDepartment(int id) throws DeleteException {
         try {
-            em.remove(em.find(Department.class, id));
+            Query q1 = em.createQuery("delete from Department a where a.id=:id");
+            q1.setParameter("id", id);
+            q1.executeUpdate();
             em.flush();
         } catch (Exception ex) {
             throw new DeleteException(ex.getMessage());

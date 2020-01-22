@@ -73,17 +73,20 @@ public class EJBDocument implements EJBDocumentInterface {
     
     public void updateDocumentByUser(int user_id) throws UpdateException {
         try {
-            Query q = em.createQuery("Update document a set a.user_id=1 "
-                    + "where a.user_id:=user_id");
+            Query q = em.createQuery("Update Document a set a.user.id=1 where a.user.id=:user_id");
             q.setParameter("user_id", user_id);
             q.executeUpdate();
         } catch (Exception e) {
+            throw new UpdateException(e.getMessage());
         }
     }
 
     public void deleteDocument(Document document) throws DeleteException {
         try {
-            em.remove(document.getId());
+            Query q1 = em.createQuery("delete from Document a where a.id=:id");
+            q1.setParameter("id", document.getId());
+            q1.executeUpdate();
+            em.flush();
         } catch (Exception ex) {
             throw new DeleteException(ex.getMessage());
         }

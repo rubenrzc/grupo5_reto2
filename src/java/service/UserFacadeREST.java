@@ -5,7 +5,6 @@
  */
 package service;
 
-import entitiesJPA.Document;
 import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;

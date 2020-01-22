@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -53,7 +54,9 @@ public class EJBCompany implements EJBCompanyInterface {
     @Override
     public void deleteCompany(int id) throws DeleteException {
         try {
-            em.remove(em.find(Company.class, id));
+            Query q1 = em.createQuery("delete from Company a where a.id=:id");
+            q1.setParameter("id", id);
+            q1.executeUpdate();
             em.flush();
         } catch (Exception ex) {
             throw new DeleteException(ex.getMessage());
