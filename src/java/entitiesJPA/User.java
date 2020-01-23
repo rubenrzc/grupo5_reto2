@@ -6,6 +6,7 @@
 package entitiesJPA;
 
 import java.io.Serializable;
+import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Date;
@@ -106,7 +107,7 @@ public class User implements Serializable {
     @Type(type = "org.hibernate.type.BlobType")
     @Lob
     @Basic(fetch = EAGER)
-    private byte[] photo;
+    private Blob photo;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past

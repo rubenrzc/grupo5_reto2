@@ -85,9 +85,9 @@ public class EJBUser implements EJBUserInterface {
         }
         Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
         LocalDateTime localDate = LocalDateTime.now();
-        Date date = Date.from( localDate.atZone( ZoneId.systemDefault()).toInstant());
-        
-        q1.setParameter("dateNow",date);
+        Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+
+        q1.setParameter("dateNow", date);
         q1.setParameter("user_id", ret.getId());
         q1.executeUpdate();
         //String passwordHashDB = hash.hashingText(user.getPassword());
@@ -114,9 +114,7 @@ public class EJBUser implements EJBUserInterface {
             String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
                     .setParameter("email", user.getEmail()).getSingleResult();
             //generamos nueva contraseña
-            String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
-                    StringBuilder::appendCodePoint, StringBuilder::append)
-                    .toString();
+            String notEncodedNew = generatePassword();
 
             passwordHashDB = hash.hashingText(notEncodedNew);
             user.setPassword(passwordHashDB);
@@ -157,7 +155,7 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public void createUser(User user) throws CreateException {
         EncryptionClass hash = new EncryptionClass();
-        String hashPassword = user.getPassword();
+        String hashPassword = generatePassword();
         hashPassword = hash.hashingText(hashPassword);
         user.setPassword(hashPassword);
         em.persist(user);
@@ -171,6 +169,13 @@ public class EJBUser implements EJBUserInterface {
         } catch (Exception ex) {
             throw new UpdateException(ex.getMessage());
         }
+    }
+
+    private String generatePassword() {
+        String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
+                StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+        return notEncodedNew;
     }
 
 }
