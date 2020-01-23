@@ -11,6 +11,7 @@ import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.DisabledUserException;
 import exceptions.GetCollectionException;
+import java.time.LocalDate;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
@@ -18,6 +19,11 @@ import exceptions.SelectException;
 import exceptions.UpdateException;
 import utils.MailSender;
 import interfaces.EJBUserInterface;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import static java.time.temporal.TemporalQueries.localDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,9 +83,15 @@ public class EJBUser implements EJBUserInterface {
         } else {
             throw new DisabledUserException();
         }
+        Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
+        LocalDateTime localDate = LocalDateTime.now();
+        Date date = Date.from( localDate.atZone( ZoneId.systemDefault()).toInstant());
+        
+        q1.setParameter("dateNow",date);
+        q1.setParameter("user_id", ret.getId());
+        q1.executeUpdate();
         //String passwordHashDB = hash.hashingText(user.getPassword());
         //user.setPassword(passwordHashDB);
-
         return ret;
     }
 

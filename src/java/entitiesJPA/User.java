@@ -35,27 +35,31 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Email;
 
-
 /**
  *
- * @author Francisco Romero Alonso //IMPLEMENTAR BUSQUEDA POR COMPAÑIA
+ * @author Francisco Romero Alonso
  */
 @NamedQueries({
     @NamedQuery(
-        name="recoverPassword",
-        query="SELECT a.password from User a where a.email=:email"),
+            name = "recoverPassword",
+            query = "SELECT a.password from User a where a.email=:email")
+    ,
     @NamedQuery(
-        name="findAllUsers",
-        query="SELECT a FROM User a ORDER BY a.id"),
+            name = "findAllUsers",
+            query = "SELECT a FROM User a ORDER BY a.id")
+    ,
     @NamedQuery(
-        name="findByLogin",
-        query="Select a from User a where a.login=:login"),
+            name = "findByLogin",
+            query = "Select a from User a where a.login=:login")
+    ,
     @NamedQuery(
-        name="findByLoginAndPassword",
-        query="Select a from User a where a.login=:login and a.password=:password"),
+            name = "findByLoginAndPassword",
+            query = "Select a from User a where a.login=:login and a.password=:password")
+    ,
     @NamedQuery(
-        name="findById",
-        query="Select a from User a where a.id=:id"),
+            name = "findById",
+            query = "Select a from User a where a.id=:id")
+    ,
     @NamedQuery(
             name = "DeleteUser",
             query = "delete from User a where a.id=:id")
@@ -70,7 +74,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name = "id")
     private int id;
 
     @Size(min = 1, max = 40)
@@ -98,10 +102,10 @@ public class User implements Serializable {
     @Size(min = 8, max = 40)
     @NotNull
     private String password;
-    
+
     @Type(type = "org.hibernate.type.BlobType")
     @Lob
-    @Basic(fetch=EAGER)
+    @Basic(fetch = EAGER)
     private byte[] photo;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
@@ -111,200 +115,200 @@ public class User implements Serializable {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
     private Date lastPassWordChange;
-    
+
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
     private Date bDate;
-    
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="company_id",nullable=true)
+    @JoinColumn(name = "company_id", nullable = true)
     private Company company;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
     private Set<Document> documents;
 
     /**
-     * 
+     *
      */
     public User() {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getId() {
         return id;
     }
-    
-/**
- * 
- * @param id 
- */
+
+    /**
+     *
+     * @param id
+     */
     public void setId(int id) {
         this.id = id;
     }
-    
-/**
- * 
- * @return 
- */
+
+    /**
+     *
+     * @return
+     */
     public String getLogin() {
         return login;
     }
-    
-/**
- * 
- * @param login 
- */
+
+    /**
+     *
+     * @param login
+     */
     public void setLogin(String login) {
         this.login = login;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getEmail() {
         return email;
     }
 
     /**
-     * 
-     * @param email 
+     *
+     * @param email
      */
     public void setEmail(String email) {
         this.email = email;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getFullname() {
         return fullname;
     }
 
     /**
-     * 
-     * @param fullname 
+     *
+     * @param fullname
      */
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public Company getCompany() {
         return company;
     }
 
     /**
-     * 
-     * @param company 
+     *
+     * @param company
      */
     public void setCompany(Company company) {
         this.company = company;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public Set<Document> getDocuments() {
         return documents;
     }
 
     /**
-     * 
-     * @param documents 
+     *
+     * @param documents
      */
     public void setDocuments(Set<Document> documents) {
         this.documents = documents;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public UserStatus getStatus() {
         return status;
     }
 
     /**
-     * 
-     * @param status 
+     *
+     * @param status
      */
     public void setStatus(UserStatus status) {
         this.status = status;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public UserPrivilege getPrivilege() {
         return privilege;
     }
 
     /**
-     * 
-     * @param privilege 
+     *
+     * @param privilege
      */
     public void setPrivilege(UserPrivilege privilege) {
         this.privilege = privilege;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getPassword() {
         return password;
     }
 
     /**
-     * 
-     * @param password 
+     *
+     * @param password
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public Date getLastAccess() {
         return lastAccess;
     }
 
     /**
-     * 
-     * @param lastAccess 
+     *
+     * @param lastAccess
      */
     public void setLastAccess(Date lastAccess) {
         this.lastAccess = lastAccess;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public Date getLastPassWordChange() {
         return lastPassWordChange;
     }
 
     /**
-     * 
-     * @param lastPassWordChange 
+     *
+     * @param lastPassWordChange
      */
     public void setLastPassWordChange(Date lastPassWordChange) {
         this.lastPassWordChange = lastPassWordChange;
     }
-    
+
     public Date getbDate() {
         return bDate;
     }
@@ -314,24 +318,24 @@ public class User implements Serializable {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public byte[] getPhoto() {
         return photo;
     }
 
     /**
-     * 
-     * @param photo 
+     *
+     * @param photo
      */
     public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     public int hashCode() {
@@ -341,9 +345,9 @@ public class User implements Serializable {
     }
 
     /**
-     * 
+     *
      * @param object
-     * @return 
+     * @return
      */
     @Override
     public boolean equals(Object object) {
@@ -359,8 +363,8 @@ public class User implements Serializable {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     public String toString() {
