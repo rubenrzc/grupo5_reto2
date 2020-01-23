@@ -322,7 +322,7 @@ public class User implements Serializable {
      *
      * @return
      */
-    public byte[] getPhoto() {
+    public Blob getPhoto() {
         return photo;
     }
 
@@ -330,7 +330,7 @@ public class User implements Serializable {
      *
      * @param photo
      */
-    public void setPhoto(byte[] photo) {
+    public void setPhoto(Blob photo) {
         this.photo = photo;
     }
 
