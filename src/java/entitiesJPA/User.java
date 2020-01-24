@@ -104,10 +104,10 @@ public class User implements Serializable {
     @NotNull
     private String password;
 
-    @Type(type = "org.hibernate.type.BlobType")
+    //@Type(type = "org.hibernate.type.BlobType")
     @Lob
     @Basic(fetch = EAGER)
-    private Blob photo;
+    private byte[] photo;
 
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     @Past
@@ -322,7 +322,7 @@ public class User implements Serializable {
      *
      * @return
      */
-    public Blob getPhoto() {
+    public byte[] getPhoto() {
         return photo;
     }
 
@@ -330,7 +330,7 @@ public class User implements Serializable {
      *
      * @param photo
      */
-    public void setPhoto(Blob photo) {
+    public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
 

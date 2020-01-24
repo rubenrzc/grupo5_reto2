@@ -11,7 +11,6 @@ import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.DisabledUserException;
 import exceptions.GetCollectionException;
-import java.time.LocalDate;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
 import exceptions.RecoverPasswordException;
@@ -19,10 +18,8 @@ import exceptions.SelectException;
 import exceptions.UpdateException;
 import utils.MailSender;
 import interfaces.EJBUserInterface;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import static java.time.temporal.TemporalQueries.localDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +49,16 @@ public class EJBUser implements EJBUserInterface {
         EncryptionClass hash = new EncryptionClass();
         String passwordHashDB = hash.hashingText(user.getPassword());
         user.setPassword(passwordHashDB);
-        em.merge(user);
+        Query q1 = em.createQuery("update User a set a.lastAccess=:bdate,a.email=:email,a.company=:company,a.fullname=:fullname,a.lastPassWordChange:=dateNow,a.password=;password,a.photo=:photo,a.privilege"
+                + " where a.id=:user_id");// UPDATE de todos los cam
+        LocalDateTime localDate = LocalDateTime.now();
+        Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+
+        q1.setParameter("dateNow", date);
+       // q1.setParameter("user_id", ret.getId());
+        q1.executeUpdate();
+        
+        //em.merge(user);
     }
 
     public User findUserById(int id) throws SelectException {
@@ -158,7 +164,31 @@ public class EJBUser implements EJBUserInterface {
         String hashPassword = generatePassword();
         hashPassword = hash.hashingText(hashPassword);
         user.setPassword(hashPassword);
-        em.persist(user);
+        try {
+            byte[] photo = user.getPhoto();
+            user.setPhoto(null);
+            em.persist(user);
+            Query q1 = em.createQuery("update User a set a.photo=:photo where a.id=:id");
+            q1.setParameter("photo", photo);
+            q1.setParameter("id", user.getId());
+            q1.executeUpdate();
+        } catch (Exception e) {
+            throw new CreateException(e.getMessage());
+        }
+        try {
+            MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
+                    ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
+            emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
+                    user.getEmail(),
+                    ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
+                    ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail1")
+                    + hashPassword
+                    + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
+            System.out.println("Ok, mail sent!");
+        } catch (MessagingException e) {
+            System.out.println("Doh!");
+            e.printStackTrace();
+        }
     }
 
     public void disabledUserByCompany(int company_id) throws UpdateException {
