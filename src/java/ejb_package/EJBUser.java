@@ -26,12 +26,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.ejb.Stateless;
 import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.ws.rs.NotFoundException;
 import utils.EncryptionClass;
 
 /**
@@ -49,16 +52,24 @@ public class EJBUser implements EJBUserInterface {
         EncryptionClass hash = new EncryptionClass();
         String passwordHashDB = hash.hashingText(user.getPassword());
         user.setPassword(passwordHashDB);
-        Query q1 = em.createQuery("update User a set a.lastAccess=:bdate,a.email=:email,a.company=:company,a.fullname=:fullname,a.lastPassWordChange:=dateNow,a.password=;password,a.photo=:photo,a.privilege"
-                + " where a.id=:user_id");// UPDATE de todos los cam
-        LocalDateTime localDate = LocalDateTime.now();
-        Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-
-        q1.setParameter("dateNow", date);
-       // q1.setParameter("user_id", ret.getId());
-        q1.executeUpdate();
-        
-        //em.merge(user);
+        Long comparador = new Long(0);
+        //comprobamos si hay usuarios con el login y email que nos pasan
+        Query q1 = em.createQuery("Select count(a) from User a where a.login=:login and a.id!=:id");
+        q1.setParameter("login", user.getLogin());
+        q1.setParameter("id", user.getId());
+        Object loginRepe = q1.getSingleResult();
+        if (!loginRepe.equals(comparador)) {
+            throw new UpdateException("Login repetido. Elija otro.");
+        }
+        //comprobar email
+        Query q2 = em.createQuery("Select count(a) from User a where a.email=:email and a.id!=:id");
+        q2.setParameter("email", user.getEmail());
+        q2.setParameter("id", user.getId());
+        Object emailRepe = q2.getSingleResult();
+        if (!emailRepe.equals(comparador)) {
+            throw new UpdateException("Email repetido. Elija otro.");
+        }
+        em.merge(user);
     }
 
     public User findUserById(int id) throws SelectException {
@@ -74,20 +85,18 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
-        //EncryptionClass hash = new EncryptionClass();
-        try {
-            ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
-        } catch (NoResultException e) {
-            throw new LoginException();
-        }
+        EncryptionClass hash = new EncryptionClass();
+        ret = checkUserbyLogin(user);
+
         UserStatus x = ret.getStatus();
         if (x == UserStatus.ENABLED) {
-            ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", user.getPassword()).getSingleResult();
-            if (ret == null) {
-                throw new LoginPasswordException();
+            try {
+                ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", hash.hashingText(user.getPassword())).getSingleResult();
+            } catch (NotFoundException e) {
+                throw new LoginPasswordException("La contraseña es incorrecta.");
             }
         } else {
-            throw new DisabledUserException();
+            throw new DisabledUserException("Usuario no habilitado, pongase en contacto con su empresa/entiedad para más información.");
         }
         Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
         LocalDateTime localDate = LocalDateTime.now();
@@ -96,8 +105,8 @@ public class EJBUser implements EJBUserInterface {
         q1.setParameter("dateNow", date);
         q1.setParameter("user_id", ret.getId());
         q1.executeUpdate();
-        //String passwordHashDB = hash.hashingText(user.getPassword());
-        //user.setPassword(passwordHashDB);
+        String passwordHashDB = hash.hashingText(user.getPassword());
+        user.setPassword(passwordHashDB);
         return ret;
     }
 
@@ -206,6 +215,16 @@ public class EJBUser implements EJBUserInterface {
                 StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
         return notEncodedNew;
+    }
+
+    private User checkUserbyLogin(User user) throws LoginException {
+        User ret = new User();
+        try {
+            ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
+        } catch (NoResultException e) {
+            throw new LoginException("El login no existe.");
+        }
+        return ret;
     }
 
 }

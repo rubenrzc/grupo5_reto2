@@ -80,12 +80,10 @@ public class User implements Serializable {
 
     @Size(min = 1, max = 40)
     @NotNull
-    @Column(unique = true)
     private String login;
 
     @Email
     @NotNull
-    @Column(unique = true)
     private String email;
 
     @Size(min = 1, max = 40)

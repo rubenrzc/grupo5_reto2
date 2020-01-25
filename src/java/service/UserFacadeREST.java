@@ -26,6 +26,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -42,14 +44,14 @@ public class UserFacadeREST {
 
     @EJB
     private EJBUserInterface ejb;
-    
+
     @EJB
     private EJBDocumentInterface ejbDoc;
-    
+
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public User find(@PathParam("id") int id) throws InternalServerErrorException{   
+    public User find(@PathParam("id") int id) throws InternalServerErrorException {
         User ret = null;
         try {
             ret = ejb.findUserById(id);
@@ -58,27 +60,27 @@ public class UserFacadeREST {
         }
         return ret;
     }
-    
+
     /**
-     * 
+     *
      * @param login
      * @param password
-     * @return 
+     * @return
      */
     @GET
     @Path("{login}/{password}") //PARA LOGIN
     @Produces({MediaType.APPLICATION_XML})
-    public User login(@PathParam("login") String login,@PathParam("password") String password) throws InternalServerErrorException{
+    public User login(@PathParam("login") String login, @PathParam("password") String password) throws InternalServerErrorException {
         User ret = new User();
         User user = new User();
         user.setLogin(login);
         user.setPassword(password);
         try {
             ret = ejb.login(user);
-        } catch (LoginPasswordException ex) {
-            throw new InternalServerErrorException("Login de usuario incorrecto.");
         } catch (LoginException ex) {
-            throw new InternalServerErrorException("Contraseña incorrecta.");
+            throw new NotAuthorizedException("Login de usuario incorrecto.");
+        } catch (LoginPasswordException ex) {
+            throw new NotFoundException("Contraseña incorrecta.");
         } catch (DisabledUserException ex) {
             throw new InternalServerErrorException("Usuario no disponible, consulte con su empresa/entidad.");
         }
@@ -86,13 +88,13 @@ public class UserFacadeREST {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @GET
     @Produces({MediaType.APPLICATION_XML})
     public Set<User> findAll() {
-        Set<User> collection=null;
+        Set<User> collection = null;
         try {
             collection = ejb.getUserList();
         } catch (GetCollectionException ex) {
@@ -103,8 +105,8 @@ public class UserFacadeREST {
     }
 
     /**
-     * 
-     * @param email 
+     *
+     * @param email
      */
     @PUT
     @Path("{email}") //buscar contraseña por email apra enviar por correo
@@ -116,10 +118,10 @@ public class UserFacadeREST {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
-     * 
-     * @param user 
+     *
+     * @param user
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML})
@@ -132,8 +134,8 @@ public class UserFacadeREST {
     }
 
     /**
-     * 
-     * @param user 
+     *
+     * @param user
      */
     @PUT
     @Consumes({MediaType.APPLICATION_XML})
@@ -147,7 +149,7 @@ public class UserFacadeREST {
 
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id")Integer id) throws InternalServerErrorException{
+    public void remove(@PathParam("id") Integer id) throws InternalServerErrorException {
         User user = new User();
         user.setId(id);
         try {
@@ -161,7 +163,5 @@ public class UserFacadeREST {
             throw new InternalServerErrorException(ex.getMessage());
         }
     }
-    
-     
-    
+
 }
