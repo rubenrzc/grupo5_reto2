@@ -70,11 +70,11 @@ public class AreaFacadeREST {
             throw new InternalServerErrorException(ex.getMessage());
         }
     }
-    
+
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Area find(@PathParam("id") Integer id) throws InternalServerErrorException{
+    public Area find(@PathParam("id") Integer id) throws InternalServerErrorException {
         Area company = null;
         try {
             company = ejb.getCompanyProfile(id);
@@ -87,7 +87,7 @@ public class AreaFacadeREST {
 
     @GET
     @Produces({MediaType.APPLICATION_XML})
-    public Set<Area> FindAllArea() throws InternalServerErrorException{
+    public Set<Area> FindAllArea() throws InternalServerErrorException {
         Set<Area> ret = null;
         try {
             ret = ejb.getAreaList();

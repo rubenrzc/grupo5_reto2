@@ -16,7 +16,6 @@ import java.util.Set;
 import java.util.List;
 import javax.ejb.Local;
 
-
 /**
  *
  * @author Yeray
@@ -27,11 +26,11 @@ public interface EJBDepartmentInterface {
     public void createDepartment(Department department) throws CreateException;
 
     public void updateDepartment(Department department) throws UpdateException;
-    
-    public void deleteDepartment(int id)throws DeleteException;
+
+    public void deleteDepartment(int id) throws DeleteException;
 
     public Set<Department> getDepartmentList() throws GetCollectionException;
-    
+
     public Department getDepartmentProfile(int id) throws SelectException;
 
 }

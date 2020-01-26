@@ -44,7 +44,7 @@ public class DepartmentFacadeREST {
             ejb.createDepartment(entity);
         } catch (CreateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-                        throw new InternalServerErrorException(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
@@ -56,7 +56,7 @@ public class DepartmentFacadeREST {
             ejb.updateDepartment(entity);
         } catch (UpdateException ex) {
             Logger.getLogger(DepartmentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-                        throw new InternalServerErrorException(ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }
 
@@ -75,7 +75,7 @@ public class DepartmentFacadeREST {
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Department find(@PathParam("id") Integer id) throws InternalServerErrorException{
+    public Department find(@PathParam("id") Integer id) throws InternalServerErrorException {
         Department department = null;
         try {
             department = ejb.getDepartmentProfile(id);
@@ -84,11 +84,11 @@ public class DepartmentFacadeREST {
             throw new InternalServerErrorException("No existe departamento con esta id en la base de datos");
         }
         return department;
-    }    
-    
+    }
+
     @GET
     @Produces({MediaType.APPLICATION_XML})
-    public Set<Department> FindAllDepartment() throws InternalServerErrorException{
+    public Set<Department> FindAllDepartment() throws InternalServerErrorException {
         Set<Department> ret = null;
         try {
             ret = ejb.getDepartmentList();

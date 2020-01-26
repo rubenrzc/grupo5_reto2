@@ -47,31 +47,44 @@ public class EJBUser implements EJBUserInterface {
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
+    /**
+     *
+     * @param user
+     * @throws UpdateException
+     */
     @Override
     public void updateUser(User user) throws UpdateException {
-        EncryptionClass hash = new EncryptionClass();
-        String passwordHashDB = hash.hashingText(user.getPassword());
-        user.setPassword(passwordHashDB);
-        Long comparador = new Long(0);
-        //comprobamos si hay usuarios con el login y email que nos pasan
-        Query q1 = em.createQuery("Select count(a) from User a where a.login=:login and a.id!=:id");
-        q1.setParameter("login", user.getLogin());
-        q1.setParameter("id", user.getId());
-        Object loginRepe = q1.getSingleResult();
-        if (!loginRepe.equals(comparador)) {
-            throw new UpdateException("Login repetido. Elija otro.");
+        try {
+            if (user.getPassword().equalsIgnoreCase("")) {
+                //sacar contraseña de la base de datos y cargar la que tenia
+                Query q1 = em.createQuery("Select a from User a where a.id=:id");
+                q1.setParameter("id", user.getId());
+                User userPassw = (User) q1.getSingleResult();
+                user.setPassword(userPassw.getPassword());
+
+            } else {
+                //cargamos la nueva
+                EncryptionClass hash = new EncryptionClass();
+                String passwordHashDB = hash.hashingText(user.getPassword());
+                user.setPassword(passwordHashDB);
+                LocalDateTime localDate = LocalDateTime.now();
+                Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+                user.setLastPassWordChange(date);
+            }
+            checkLoginAndEmail(user);
+            em.merge(user);
+        } catch (Exception e) {
+            throw new UpdateException();
         }
-        //comprobar email
-        Query q2 = em.createQuery("Select count(a) from User a where a.email=:email and a.id!=:id");
-        q2.setParameter("email", user.getEmail());
-        q2.setParameter("id", user.getId());
-        Object emailRepe = q2.getSingleResult();
-        if (!emailRepe.equals(comparador)) {
-            throw new UpdateException("Email repetido. Elija otro.");
-        }
-        em.merge(user);
+
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     * @throws SelectException
+     */
     public User findUserById(int id) throws SelectException {
         User ret = null;
         try {
@@ -82,6 +95,14 @@ public class EJBUser implements EJBUserInterface {
         return ret;
     }
 
+    /**
+     *
+     * @param user
+     * @return
+     * @throws LoginException
+     * @throws LoginPasswordException
+     * @throws DisabledUserException
+     */
     @Override
     public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
@@ -92,7 +113,7 @@ public class EJBUser implements EJBUserInterface {
         if (x == UserStatus.ENABLED) {
             try {
                 ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", hash.hashingText(user.getPassword())).getSingleResult();
-            } catch (NotFoundException e) {
+            } catch (Exception e) {
                 throw new LoginPasswordException("La contraseña es incorrecta.");
             }
         } else {
@@ -110,6 +131,10 @@ public class EJBUser implements EJBUserInterface {
         return ret;
     }
 
+    /**
+     *
+     * @return @throws GetCollectionException
+     */
     @Override
     public Set<User> getUserList() throws GetCollectionException {
         List<User> listUser = null;
@@ -122,8 +147,13 @@ public class EJBUser implements EJBUserInterface {
         return ret;
     }
 
+    /**
+     *
+     * @param user
+     * @throws RecoverPasswordException
+     */
     @Override
-    public void recoverPassword(User user) throws RecoverPasswordException {
+    public void recoverPassword(User user) throws RecoverPasswordException, SelectException {
         try {
             EncryptionClass hash = new EncryptionClass();
             String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
@@ -133,9 +163,8 @@ public class EJBUser implements EJBUserInterface {
 
             passwordHashDB = hash.hashingText(notEncodedNew);
             user.setPassword(passwordHashDB);
-
-            em.merge(user);//actualizamos en la base de datos
-            //ENVIAR CORREO
+            
+                        //ENVIAR CORREO
             MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
             try {
@@ -149,13 +178,22 @@ public class EJBUser implements EJBUserInterface {
             } catch (MessagingException e) {
                 System.out.println("Doh!");
                 e.printStackTrace();
+                throw new SelectException();
             }
 
-        } catch (NoResultException e) {
+            em.merge(user);//actualizamos en la base de datos
+
+
+        } catch (Exception e) {
             throw new RecoverPasswordException();
         }
     }
 
+    /**
+     *
+     * @param user
+     * @throws DeleteException
+     */
     @Override
     public void deleteUser(User user) throws DeleteException {
         try {
@@ -167,11 +205,21 @@ public class EJBUser implements EJBUserInterface {
         }
     }
 
+    /**
+     *
+     * @param user
+     * @throws CreateException
+     */
     @Override
-    public void createUser(User user) throws CreateException {
+    public void createUser(User user) throws CreateException, UpdateException {
+        try {
+            checkLoginAndEmail(user);
+        } catch (UpdateException ex) {
+            Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
+        }
         EncryptionClass hash = new EncryptionClass();
-        String hashPassword = generatePassword();
-        hashPassword = hash.hashingText(hashPassword);
+        String notHashPassword = generatePassword();
+        String hashPassword = hash.hashingText(notHashPassword);
         user.setPassword(hashPassword);
         try {
             byte[] photo = user.getPhoto();
@@ -191,7 +239,7 @@ public class EJBUser implements EJBUserInterface {
                     user.getEmail(),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail1")
-                    + hashPassword
+                    + notHashPassword
                     + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
             System.out.println("Ok, mail sent!");
         } catch (MessagingException e) {
@@ -200,6 +248,11 @@ public class EJBUser implements EJBUserInterface {
         }
     }
 
+    /**
+     *
+     * @param company_id
+     * @throws UpdateException
+     */
     public void disabledUserByCompany(int company_id) throws UpdateException {
         try {
             Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
@@ -210,6 +263,10 @@ public class EJBUser implements EJBUserInterface {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     private String generatePassword() {
         String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
                 StringBuilder::appendCodePoint, StringBuilder::append)
@@ -217,6 +274,12 @@ public class EJBUser implements EJBUserInterface {
         return notEncodedNew;
     }
 
+    /**
+     *
+     * @param user
+     * @return
+     * @throws LoginException
+     */
     private User checkUserbyLogin(User user) throws LoginException {
         User ret = new User();
         try {
@@ -225,6 +288,31 @@ public class EJBUser implements EJBUserInterface {
             throw new LoginException("El login no existe.");
         }
         return ret;
+    }
+
+    /**
+     *
+     * @param user
+     * @throws UpdateException
+     */
+    private void checkLoginAndEmail(User user) throws UpdateException {
+        Long comparador = new Long(0);
+        //comprobamos si hay usuarios con el login y email que nos pasan
+        Query q1 = em.createQuery("Select count(a) from User a where a.login=:login and a.id!=:id");
+        q1.setParameter("login", user.getLogin());
+        q1.setParameter("id", user.getId());
+        Object loginRepe = q1.getSingleResult();
+        if (!loginRepe.equals(comparador)) {
+            throw new UpdateException("Login repetido. Elija otro.");
+        }
+        //comprobar email
+        Query q2 = em.createQuery("Select count(a) from User a where a.email=:email and a.id!=:id");
+        q2.setParameter("email", user.getEmail());
+        q2.setParameter("id", user.getId());
+        Object emailRepe = q2.getSingleResult();
+        if (!emailRepe.equals(comparador)) {
+            throw new UpdateException("Email repetido. Elija otro.");
+        }
     }
 
 }

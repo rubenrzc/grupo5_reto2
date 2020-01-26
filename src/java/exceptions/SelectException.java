@@ -7,7 +7,7 @@ package exceptions;
 
 /**
  *
- * @author stone
+ * @author Peiko
  */
 public class SelectException extends Exception {
 

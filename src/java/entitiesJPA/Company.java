@@ -30,28 +30,28 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "company", schema = "grupo5_database")
-@NamedQuery(name="findAllCompanies",
-            query="SELECT a FROM Company a ORDER BY a.id")
+@NamedQuery(name = "findAllCompanies",
+        query = "SELECT a FROM Company a ORDER BY a.id")
 @XmlRootElement
 public class Company implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name = "id")
     private int id;
-   
+
     private String name;
     private String cif;
-    
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="company",cascade=CascadeType.ALL)
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "company", cascade = CascadeType.ALL)
     private Set<User> users;
-    
+
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="company_department",schema="grupo5_database",
-              joinColumns=@JoinColumn(name="id_company"),
-              inverseJoinColumns=@JoinColumn(name="id_department"))
-    private Set <Department> departments;
+    @JoinTable(name = "company_department", schema = "grupo5_database",
+            joinColumns = @JoinColumn(name = "id_company"),
+            inverseJoinColumns = @JoinColumn(name = "id_department"))
+    private Set<Department> departments;
 
     public int getId() {
         return id;
@@ -132,16 +132,15 @@ public class Company implements Serializable {
     /**
      * @return the departments
      */
-    public Set <Department> getDepartments() {
+    public Set<Department> getDepartments() {
         return departments;
     }
 
     /**
      * @param departments the departments to set
      */
-    public void setDepartments(Set <Department> departments) {
+    public void setDepartments(Set<Department> departments) {
         this.departments = departments;
     }
- 
-    
+
 }

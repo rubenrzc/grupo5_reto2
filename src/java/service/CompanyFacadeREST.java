@@ -37,7 +37,7 @@ public class CompanyFacadeREST {
 
     @EJB(beanName = "EJBCompany")
     private EJBCompanyInterface ejb;
-    
+
     @EJB
     private EJBUserInterface ejbUser;
 
@@ -82,7 +82,7 @@ public class CompanyFacadeREST {
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Company find(@PathParam("id") Integer id) throws InternalServerErrorException{
+    public Company find(@PathParam("id") Integer id) throws InternalServerErrorException {
         Company company = null;
         try {
             company = ejb.getCompanyProfile(id);
@@ -95,7 +95,7 @@ public class CompanyFacadeREST {
 
     @GET
     @Produces({MediaType.APPLICATION_XML})
-    public Set<Company> findAll() throws InternalServerErrorException{
+    public Set<Company> findAll() throws InternalServerErrorException {
         Set<Company> companies = null;
         try {
             companies = ejb.getCompanyList();
@@ -106,6 +106,4 @@ public class CompanyFacadeREST {
         return companies;
     }
 
-
-    
 }

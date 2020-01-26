@@ -7,6 +7,7 @@ package entitiesJPA;
 
 /**
  * This enumeration establishes the status in which the document is.
+ *
  * @author Francisco Romero Alonso
  */
 public enum DocumentStatus {

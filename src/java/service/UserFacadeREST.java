@@ -111,11 +111,14 @@ public class UserFacadeREST {
     @PUT
     @Path("{email}") //buscar contraseña por email apra enviar por correo
     @Consumes({MediaType.APPLICATION_XML})
-    public void recoverPassword(User user) {
+    public void recoverPassword(User user) throws InternalServerErrorException {
         try {
             ejb.recoverPassword(user);
         } catch (RecoverPasswordException ex) {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new NotAuthorizedException("Email inexistente.");
+        } catch (SelectException ex) {
+            throw new InternalServerErrorException("Fallo al enviar email");
         }
     }
 
@@ -125,11 +128,15 @@ public class UserFacadeREST {
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML})
-    public void create(User user) {
+    public void create(User user) throws InternalServerErrorException {
         try {
             ejb.createUser(user);
         } catch (CreateException ex) {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("Error al dar de alta al usuario.");
+        } catch (UpdateException ex) {
+            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new NotAuthorizedException("Login y/o email ya existen en la base de datos.");
         }
     }
 
@@ -139,11 +146,11 @@ public class UserFacadeREST {
      */
     @PUT
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(User user) {
+    public void edit(User user) throws InternalServerErrorException {
         try {
             ejb.updateUser(user);
         } catch (UpdateException ex) {
-            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException();
         }
     }
 

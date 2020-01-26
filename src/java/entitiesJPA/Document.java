@@ -40,9 +40,7 @@ import javax.xml.bind.annotation.XmlTransient;
     ,
     @NamedQuery(
             name = "findAllDocuments",
-            query = "select a from Document a"),
-    
-})
+            query = "select a from Document a"),})
 
 @Entity
 @Table(name = "document", schema = "grupo5_database")
@@ -60,7 +58,7 @@ public class Document implements Serializable {
     private String description;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="user_id",nullable=true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @ManyToMany(mappedBy = "documents", fetch = FetchType.EAGER)
@@ -73,7 +71,7 @@ public class Document implements Serializable {
     private Boolean visibility;
 
     @Lob
-    @Basic(fetch=EAGER)
+    @Basic(fetch = EAGER)
     private byte[] documentContent;
 
     private DocumentStatus status;

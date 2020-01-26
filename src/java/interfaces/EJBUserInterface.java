@@ -24,20 +24,20 @@ import javax.ejb.Local;
  */
 @Local
 public interface EJBUserInterface {
-   
-    public void createUser(User user) throws CreateException;
-    
+
+    public void createUser(User user) throws CreateException, UpdateException;
+
     public void updateUser(User user) throws UpdateException;
-    
-    public User login(User user) throws LoginException,LoginPasswordException,DisabledUserException;
-    
+
+    public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException;
+
     public Set<User> getUserList() throws GetCollectionException;
-    
-    public void recoverPassword(User user) throws RecoverPasswordException;
-    
+
+    public void recoverPassword(User user) throws RecoverPasswordException, SelectException;
+
     public void deleteUser(User user) throws DeleteException;
 
     public User findUserById(int id) throws SelectException;
-    
-     public void disabledUserByCompany(int company_id)throws UpdateException;    
+
+    public void disabledUserByCompany(int company_id) throws UpdateException;
 }

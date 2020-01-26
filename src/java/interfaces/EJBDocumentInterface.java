@@ -24,12 +24,12 @@ public interface EJBDocumentInterface {
     public void createNewDocument(Document document) throws CreateException;
 
     public void updateDocument(Document document) throws UpdateException;
-    
-    public void deleteDocument(Document document)throws DeleteException;
+
+    public void deleteDocument(Document document) throws DeleteException;
 
     public Set<Document> getDocumentList() throws GetCollectionException;
 
     public Document findDocumentById(int id) throws SelectException;
-    
+
     public void updateDocumentByUser(int user_id) throws UpdateException;
 }

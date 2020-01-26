@@ -33,9 +33,9 @@ import javax.ws.rs.core.MediaType;
  * @author 2dam
  */
 @Path("document")
-public class DocumentFacadeREST{
+public class DocumentFacadeREST {
 
-    @EJB(beanName="EJBDocument")
+    @EJB(beanName = "EJBDocument")
     private EJBDocumentInterface ejb;
 
     @POST
@@ -73,7 +73,7 @@ public class DocumentFacadeREST{
     @GET
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML})
-    public Document find(@PathParam("id") int id) throws InternalServerErrorException{
+    public Document find(@PathParam("id") int id) throws InternalServerErrorException {
         Document ret = null;
         try {
             ret = ejb.findDocumentById(id);
@@ -86,7 +86,7 @@ public class DocumentFacadeREST{
     @GET
     @Produces({MediaType.APPLICATION_XML})
     public Set<Document> findAll() {
-        Set<Document> collection=null;
+        Set<Document> collection = null;
         try {
             collection = ejb.getDocumentList();
         } catch (GetCollectionException ex) {
@@ -94,5 +94,5 @@ public class DocumentFacadeREST{
         }
         return collection;
     }
-    
+
 }

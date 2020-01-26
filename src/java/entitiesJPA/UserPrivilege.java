@@ -7,6 +7,7 @@ package entitiesJPA;
 
 /**
  * This enumeration establishes the user's role
+ *
  * @author 2dam
  */
 public enum UserPrivilege {

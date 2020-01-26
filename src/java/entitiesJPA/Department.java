@@ -26,10 +26,9 @@ import javax.persistence.OneToMany;
  *
  * @author Yeray
  */
-
 @NamedQuery(
         name = "findAllDepartments",
-        query = "SELECT a FROM Department a ORDER BY a.id")  
+        query = "SELECT a FROM Department a ORDER BY a.id")
 @Entity
 @Table(name = "department", schema = "grupo5_database")
 @XmlRootElement
@@ -38,25 +37,25 @@ public class Department implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="id")
+    @Column(name = "id")
     private int id;
     /**
      * Department name
      */
     @Size(min = 1, max = 40)
-    @Column(nullable=false,unique=true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     /**
      * Companies collection
      */
-    @ManyToMany(mappedBy="departments",fetch=FetchType.EAGER)
+    @ManyToMany(mappedBy = "departments", fetch = FetchType.EAGER)
     private Set<Company> companies;
 
     /**
      * Areas collection
      */
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="department",cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "department", cascade = CascadeType.ALL)
     private Set<Area> areas;
 
     public int getId() {
@@ -109,9 +108,10 @@ public class Department implements Serializable {
     public void setAreas(Set<Area> areas) {
         this.areas = areas;
     }
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     public int hashCode() {
@@ -119,10 +119,11 @@ public class Department implements Serializable {
         hash += (int) id;
         return hash;
     }
+
     /**
-     * 
+     *
      * @param object
-     * @return 
+     * @return
      */
     @Override
     public boolean equals(Object object) {
@@ -136,9 +137,10 @@ public class Department implements Serializable {
         }
         return true;
     }
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     @Override
     public String toString() {

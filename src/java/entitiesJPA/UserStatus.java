@@ -7,6 +7,7 @@ package entitiesJPA;
 
 /**
  * This enumeration establishes the status in which the user is.
+ *
  * @author Fran
  */
 public enum UserStatus {

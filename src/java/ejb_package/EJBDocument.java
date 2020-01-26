@@ -21,7 +21,6 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-
 /**
  *
  * @author Fran
@@ -42,11 +41,11 @@ public class EJBDocument implements EJBDocumentInterface {
         Set<Document> ret = new HashSet<Document>(listDocument);
         return ret;
     }
-    
-    public Document findDocumentById(int id) throws SelectException{
+
+    public Document findDocumentById(int id) throws SelectException {
         Document ret = null;
         try {
-            ret =(Document) em.createNamedQuery("findDocumentById").setParameter("id", id).getSingleResult();
+            ret = (Document) em.createNamedQuery("findDocumentById").setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
             throw new SelectException();
         }
@@ -70,7 +69,7 @@ public class EJBDocument implements EJBDocumentInterface {
             throw new UpdateException(ex.getMessage());
         }
     }
-    
+
     public void updateDocumentByUser(int user_id) throws UpdateException {
         try {
             Query q = em.createQuery("Update Document a set a.user.id=1 where a.user.id=:user_id");
