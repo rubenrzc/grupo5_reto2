@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
+import javax.mail.MessagingException;
 import javax.resource.spi.UnavailableException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -132,11 +133,11 @@ public class UserFacadeREST {
         try {
             ejb.createUser(user);
         } catch (CreateException ex) {
-            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException("Error al dar de alta al usuario.");
         } catch (UpdateException ex) {
-            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new NotAuthorizedException("Login y/o email ya existen en la base de datos.");
+        } catch (MessagingException ex){
+            throw new NotFoundException("Error al enviar el email a su correo electrónico.");
         }
     }
 

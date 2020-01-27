@@ -17,6 +17,7 @@ import exceptions.SelectException;
 import exceptions.UpdateException;
 import java.util.Set;
 import javax.ejb.Local;
+import javax.mail.MessagingException;
 
 /**
  *
@@ -25,7 +26,7 @@ import javax.ejb.Local;
 @Local
 public interface EJBUserInterface {
 
-    public void createUser(User user) throws CreateException, UpdateException;
+    public void createUser(User user) throws CreateException, UpdateException, MessagingException;
 
     public void updateUser(User user) throws UpdateException;
 

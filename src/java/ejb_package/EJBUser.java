@@ -180,8 +180,12 @@ public class EJBUser implements EJBUserInterface {
                 e.printStackTrace();
                 throw new SelectException();
             }
-
-            em.merge(user);//actualizamos en la base de datos
+            //actualizamos en la base de datos
+            Query q1 = em.createQuery("update User a set a.password=:password where a.email=:email");
+            q1.setParameter("password", passwordHashDB);
+            q1.setParameter("email", user.getEmail());
+            q1.executeUpdate();
+            
 
 
         } catch (Exception e) {
@@ -211,11 +215,12 @@ public class EJBUser implements EJBUserInterface {
      * @throws CreateException
      */
     @Override
-    public void createUser(User user) throws CreateException, UpdateException {
+    public void createUser(User user) throws CreateException, UpdateException, MessagingException {
         try {
             checkLoginAndEmail(user);
         } catch (UpdateException ex) {
             Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UpdateException();
         }
         EncryptionClass hash = new EncryptionClass();
         String notHashPassword = generatePassword();
@@ -239,12 +244,12 @@ public class EJBUser implements EJBUserInterface {
                     user.getEmail(),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail1")
-                    + notHashPassword
+                    + "" +notHashPassword
                     + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
             System.out.println("Ok, mail sent!");
         } catch (MessagingException e) {
             System.out.println("Doh!");
-            e.printStackTrace();
+            throw new MessagingException();
         }
     }
 
@@ -268,10 +273,16 @@ public class EJBUser implements EJBUserInterface {
      * @return
      */
     private String generatePassword() {
-        String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
-                StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-        return notEncodedNew;
+        Random random = new Random();
+        String alphabet = "0123456789abcdfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ";
+        StringBuilder notEncodedNew = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            notEncodedNew.append(alphabet.charAt(random.nextInt(alphabet.length())));
+        }
+//String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
+                //StringBuilder::appendCodePoint, StringBuilder::append)
+               // .toString();
+        return new String(notEncodedNew);
     }
 
     /**
