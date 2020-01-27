@@ -26,12 +26,11 @@ public class EncryptionClass {
      * @param mensaje El mensaje a cifrar
      * @return El mensaje cifrado
      */
-    public byte[] encryptText(String mensaje) {
+    public String encryptText(String mensaje) {
         byte[] encodedMessage = null;
         try {
             // Clave pública
-            byte fileKey[] = fileReader("c:\\trastero\\EjemploRSA_Public.key");
-            System.out.println("Tamaño -> " + fileKey.length + " bytes");
+            byte fileKey[] = fileReader("files/Public.key");
 
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(fileKey);
@@ -43,7 +42,7 @@ public class EncryptionClass {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return encodedMessage;
+        return new String(encodedMessage);
     }
 
     /**
@@ -57,8 +56,7 @@ public class EncryptionClass {
         byte[] decodedMessage = null;
         try {
             // Clave pública
-            byte fileKey[] = fileReader("c:\\trastero\\EjemploRSA_Private.key");
-            System.out.println("Tamaño -> " + fileKey.length + " bytes");
+            byte fileKey[] = fileReader("./files/Private.key");
 
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PKCS8EncodedKeySpec pKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(fileKey);
@@ -130,19 +128,5 @@ public class EncryptionClass {
             e.printStackTrace();
         }
         return ret;
-    }
-
-    public static void main(String[] args) {
-        EncryptionClass ejemploRSA = new EncryptionClass();
-        byte[] mensajeCifrado = ejemploRSA.encryptText("Mensaje super secreto");
-        System.out.println("Cifrado! -> " + new String(mensajeCifrado));
-        System.out.println("Tamaño -> " + mensajeCifrado.length + " bytes");
-        System.out.println("-----------");
-        byte[] mensajeDescifrado = ejemploRSA.decryptText(mensajeCifrado);
-        System.out.println("Descifrado! -> " + new String(mensajeDescifrado));
-        System.out.println("-----------");
-
-        //EjemploSHA ejemploSHA = new EjemploSHA();
-        //ejemploSHA.cifrarTexto("Mensaje super secreto");
     }
 }

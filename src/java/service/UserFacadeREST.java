@@ -17,12 +17,18 @@ import exceptions.SelectException;
 import exceptions.UpdateException;
 import interfaces.EJBDocumentInterface;
 import interfaces.EJBUserInterface;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.Cipher;
 import javax.ejb.EJB;
 import javax.mail.MessagingException;
-import javax.resource.spi.UnavailableException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -71,11 +77,12 @@ public class UserFacadeREST {
     @GET
     @Path("{login}/{password}") //PARA LOGIN
     @Produces({MediaType.APPLICATION_XML})
-    public User login(@PathParam("login") String login, @PathParam("password") String password) throws InternalServerErrorException {
+    public User login(@PathParam("login") String login, @PathParam("password") String bPassword) throws InternalServerErrorException {
         User ret = new User();
         User user = new User();
         user.setLogin(login);
-        user.setPassword(password);
+        String notEncryptedPassword = decryptText(bPassword);
+        user.setPassword(notEncryptedPassword);
         try {
             ret = ejb.login(user);
         } catch (LoginException ex) {
@@ -131,12 +138,14 @@ public class UserFacadeREST {
     @Consumes({MediaType.APPLICATION_XML})
     public void create(User user) throws InternalServerErrorException {
         try {
+            String notEncryptedPassword = decryptText(user.getPassword());
+            user.setPassword(notEncryptedPassword);
             ejb.createUser(user);
         } catch (CreateException ex) {
             throw new InternalServerErrorException("Error al dar de alta al usuario.");
         } catch (UpdateException ex) {
             throw new NotAuthorizedException("Login y/o email ya existen en la base de datos.");
-        } catch (MessagingException ex){
+        } catch (MessagingException ex) {
             throw new NotFoundException("Error al enviar el email a su correo electrónico.");
         }
     }
@@ -149,6 +158,8 @@ public class UserFacadeREST {
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(User user) throws InternalServerErrorException {
         try {
+            String notEncryptedPassword = decryptText(user.getPassword());
+            user.setPassword(notEncryptedPassword);
             ejb.updateUser(user);
         } catch (UpdateException ex) {
             throw new InternalServerErrorException();
@@ -170,6 +181,51 @@ public class UserFacadeREST {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException(ex.getMessage());
         }
+    }
+
+    /**
+     * Descifra un texto con RSA, modo ECB y padding PKCS1Padding (asimétrica) y
+     * lo retorna
+     *
+     * @param mensaje El mensaje a descifrar
+     * @return El mensaje descifrado
+     */
+    private String decryptText(String mensaje) {
+        byte[] decodedMessage = null;
+
+        try {
+            // Clave pública
+            byte fileKey[] = fileReader("files/Public.key");
+            System.out.println("Tamaño -> " + fileKey.length + " bytes");
+
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PKCS8EncodedKeySpec pKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(fileKey);
+            PrivateKey privateKey = keyFactory.generatePrivate(pKCS8EncodedKeySpec);
+
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            decodedMessage = cipher.doFinal(mensaje.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new String(decodedMessage);
+    }
+
+    /**
+     * Retorna el contenido de un fichero
+     *
+     * @param path Path del fichero
+     * @return El texto del fichero
+     */
+    private byte[] fileReader(String path) {
+        byte ret[] = null;
+        File file = new File(path);
+        try {
+            ret = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
 }
