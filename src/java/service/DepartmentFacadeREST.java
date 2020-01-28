@@ -49,7 +49,6 @@ public class DepartmentFacadeREST {
     }
 
     @PUT
-    @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(Department entity) {
         try {

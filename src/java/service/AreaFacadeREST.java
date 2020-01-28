@@ -49,7 +49,6 @@ public class AreaFacadeREST {
     }
 
     @PUT
-    @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(Area entity) {
         try {

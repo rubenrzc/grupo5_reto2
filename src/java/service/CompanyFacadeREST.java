@@ -53,7 +53,6 @@ public class CompanyFacadeREST {
     }
 
     @PUT
-    @Path("{id}")
     @Consumes({MediaType.APPLICATION_XML})
     public void edit(Company company) {
         try {

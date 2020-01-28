@@ -6,6 +6,7 @@
 package ejb_package;
 
 import entitiesJPA.Document;
+import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.GetCollectionException;
@@ -16,6 +17,9 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import interfaces.EJBDocumentInterface;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.NoResultException;
@@ -55,6 +59,9 @@ public class EJBDocument implements EJBDocumentInterface {
     @Override
     public void createNewDocument(Document document) throws CreateException {
         try {
+            LocalDateTime localDate = LocalDateTime.now();
+            Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+            document.setUploadDate(date);
             em.persist(document);
         } catch (Exception ex) {
             throw new CreateException(ex.getMessage());

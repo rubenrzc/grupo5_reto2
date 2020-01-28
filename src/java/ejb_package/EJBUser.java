@@ -34,7 +34,6 @@ import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.ws.rs.NotFoundException;
 import utils.EncryptionClass;
 
 /**
