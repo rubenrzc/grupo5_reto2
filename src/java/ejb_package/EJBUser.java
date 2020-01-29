@@ -34,7 +34,7 @@ import javax.mail.MessagingException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import utils.EncryptionClass;
+import utils.EncryptionServerClass;
 
 /**
  *
@@ -63,7 +63,7 @@ public class EJBUser implements EJBUserInterface {
 
             } else {
                 //cargamos la nueva
-                EncryptionClass hash = new EncryptionClass();
+                EncryptionServerClass hash = new EncryptionServerClass();
                 String passwordHashDB = hash.hashingText(user.getPassword());
                 user.setPassword(passwordHashDB);
                 LocalDateTime localDate = LocalDateTime.now();
@@ -75,7 +75,6 @@ public class EJBUser implements EJBUserInterface {
         } catch (Exception e) {
             throw new UpdateException();
         }
-
     }
 
     /**
@@ -105,13 +104,14 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
-        EncryptionClass hash = new EncryptionClass();
+        EncryptionServerClass encryp = new EncryptionServerClass();
+        //String notEncodedPassword = encryp.decryptText(user.getPassword());
         ret = checkUserbyLogin(user);
 
         UserStatus x = ret.getStatus();
         if (x == UserStatus.ENABLED) {
             try {
-                ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", hash.hashingText(user.getPassword())).getSingleResult();
+                ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", encryp.hashingText(user.getPassword())).getSingleResult();
             } catch (Exception e) {
                 throw new LoginPasswordException("La contraseña es incorrecta.");
             }
@@ -125,7 +125,7 @@ public class EJBUser implements EJBUserInterface {
         q1.setParameter("dateNow", date);
         q1.setParameter("user_id", ret.getId());
         q1.executeUpdate();
-        String passwordHashDB = hash.hashingText(user.getPassword());
+        String passwordHashDB = encryp.hashingText(user.getPassword());
         user.setPassword(passwordHashDB);
         return ret;
     }
@@ -154,7 +154,7 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public void recoverPassword(User user) throws RecoverPasswordException, SelectException {
         try {
-            EncryptionClass hash = new EncryptionClass();
+            EncryptionServerClass hash = new EncryptionServerClass();
             String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
                     .setParameter("email", user.getEmail()).getSingleResult();
             //generamos nueva contraseña
@@ -221,7 +221,7 @@ public class EJBUser implements EJBUserInterface {
             Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
             throw new UpdateException();
         }
-        EncryptionClass hash = new EncryptionClass();
+        EncryptionServerClass hash = new EncryptionServerClass();
         String notHashPassword = generatePassword();
         String hashPassword = hash.hashingText(notHashPassword);
         user.setPassword(hashPassword);

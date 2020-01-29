@@ -43,9 +43,12 @@ public class EJBCompany implements EJBCompanyInterface {
     public void updateCompany(Company company) throws UpdateException {
 
         try {
-            em.merge(company);
-            em.flush();// actualiza al momento base de datos
-
+            Query q= em.createQuery("update Company a set a.name:name, a.cif=:cif WHERE a.id=:id");
+            q.setParameter("id", company.getId());
+            q.setParameter("cif", company.getCif());
+            q.setParameter("name", company.getName());
+            q.executeUpdate();
+            em.flush();
         } catch (Exception ex) {
             throw new UpdateException(ex.getMessage());
         }

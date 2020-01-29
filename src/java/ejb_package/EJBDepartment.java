@@ -44,7 +44,13 @@ public class EJBDepartment implements EJBDepartmentInterface {
      * @param depart
      */
     public void updateDepartment(Department depart) throws UpdateException {
-        em.merge(depart);
+        Department department= new Department();
+        department=em.find(Department.class, depart.getId());
+        department.setAreas(depart.getAreas());
+        department.setCompanies(depart.getCompanies());
+        department.setName(depart.getName());
+        em.merge(department);
+        em.flush();
     }
 
     /**

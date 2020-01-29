@@ -53,7 +53,10 @@ public class EJBArea implements EJBAreaInterface {
      */
     public void updateArea(Area area) throws UpdateException {
         try {
-            em.merge(area);
+            Query q= em.createQuery("update Area a set a.name=:name WHERE a.id=:id");
+            q.setParameter("id", area.getId());
+            q.setParameter("name", area.getName());
+            q.executeUpdate();
             em.flush();
         } catch (Exception e) {
             throw new UpdateException(e.getMessage());
