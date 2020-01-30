@@ -9,6 +9,7 @@ import entitiesJPA.User;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.DisabledUserException;
+import exceptions.GenericServerException;
 import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
@@ -41,4 +42,6 @@ public interface EJBUserInterface {
     public User findUserById(int id) throws SelectException;
 
     public void disabledUserByCompany(int company_id) throws UpdateException;
+    
+    public String getPublicKey() throws GenericServerException;
 }

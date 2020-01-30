@@ -20,17 +20,23 @@ import java.util.logging.Logger;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  *
  * @author Fran
  */
 public class EncryptionServerClass {
+    
+    private static Cipher cipherD;
 
     private final static String CRYPTO_METHOD = "RSA";
-    private final static String OPCION_RSA = "RSA/ECB/OAEPWithSHA1AndMGF1Padding";
-    private final static String PUBLIC_PATH = "";//ResourceBundle.getBundle("files.KeysProperties").getString("public_key");
-    private final static String PRIVATE_PATH = "";//ResourceBundle.getBundle("files.KeysProperties").getString("private_key");
+    private final static String OPCION_RSA= "RSA/ECB/OAEPWithSHA1AndMGF1Padding";
+    //private final static String OPCION_RSA = "RSA/ECB/PKCS1Padding";
+    private final static String PUBLIC_PATH = ResourceBundle.getBundle("files.KeysProperties").getString("public_key");
+    private final static String PRIVATE_PATH = ResourceBundle.getBundle("files.KeysProperties").getString("private_key");
+    // private final static String PUBLIC_PATH_ = "C:\\FRAN\\Public.key";
+    //private final static String PRIVATE_PATH_ = "C:\\FRAN\\Private.key";
 
     /**
      * Cifra un texto con RSA, modo ECB y padding PKCS1Padding (asimétrica) y lo
@@ -44,11 +50,12 @@ public class EncryptionServerClass {
         try {
             // Clave pública
             InputStream in = null;
-            byte[] publicKeyBytes = null;
+             byte[] publicKeyBytes = null;
             in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(PUBLIC_PATH);
             publicKeyBytes = new byte[in.available()];
-            in.read(publicKeyBytes);
-            in.close();
+             in.read(publicKeyBytes);
+             in.close();
+           // byte publicKeyBytes[] = fileReader("c:\\FRAN\\Public.key");
 
             KeyFactory keyFactory = KeyFactory.getInstance(CRYPTO_METHOD);
             X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -60,7 +67,7 @@ public class EncryptionServerClass {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Hexadecimal(encodedMessage);
+        return toHexadecimal(encodedMessage);
     }
 
     /**
@@ -70,39 +77,29 @@ public class EncryptionServerClass {
      * @param mensaje El mensaje a descifrar
      * @return El mensaje descifrado
      */
-    public String decryptText(String mensaje) {
-        String ret = null;
+    public String decryptText(String encryptedMessage) {
+        String message = null;
         try {
-            Cipher cipher = null;
             InputStream in = null;
             byte[] privateKeyBytes = null;
             in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(PRIVATE_PATH);
             privateKeyBytes = new byte[in.available()];
             in.read(privateKeyBytes);
             in.close();
-
+            
             KeyFactory keyFactory = KeyFactory.getInstance(CRYPTO_METHOD);
             PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-            PrivateKey privateKey = null;
-            privateKey = keyFactory.generatePrivate(privateKeySpec);
-
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] messageInBytes = cipher.doFinal(hexStringToByteArray(mensaje));
-            ret = new String(messageInBytes);
-        } catch (IOException ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidKeyException ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalBlockSizeException ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (BadPaddingException ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidKeySpecException ex) {
+            PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
+            
+            cipherD = Cipher.getInstance(OPCION_RSA);
+            cipherD.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] messageInBytes = cipherD.doFinal(hexStringToByteArray(encryptedMessage));
+            message = new String(messageInBytes);
+            
+        } catch (Exception ex) {
             Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return ret;
+        return message;
     }
 
     /**
@@ -125,7 +122,7 @@ public class EncryptionServerClass {
             System.out.println("Número de Bytes: " + messageDigest.getDigestLength());
             System.out.println("Algoritmo: " + messageDigest.getAlgorithm());
             System.out.println("Mensaje Resumen: " + new String(hash));
-            System.out.println("Mensaje en Hexadecimal: " + Hexadecimal(hash));
+            System.out.println("Mensaje en Hexadecimal: " + toHexadecimal(hash));
             System.out.println("Proveedor: " + messageDigest.getProvider().toString());
             System.out.println("encoded: " + encoded);
         } catch (NoSuchAlgorithmException e) {
@@ -135,7 +132,7 @@ public class EncryptionServerClass {
     }
 
     // Convierte Array de Bytes en hexadecimal
-    static String Hexadecimal(byte[] resumen) {
+    static String toHexadecimal(byte[] resumen) {
         String HEX = "";
         for (int i = 0; i < resumen.length; i++) {
             String h = Integer.toHexString(resumen[i] & 0xFF);
@@ -173,4 +170,15 @@ public class EncryptionServerClass {
         }
         return data;
     }
+        public static String getPublic() throws IOException{
+        InputStream in = null;
+        byte[] publicKeyBytes = null;
+        in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(PUBLIC_PATH);
+        publicKeyBytes = new byte[in.available()];
+        in.read(publicKeyBytes);
+        in.close();
+        
+        return toHexadecimal(publicKeyBytes);
+    }
+
 }

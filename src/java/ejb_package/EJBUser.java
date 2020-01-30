@@ -10,6 +10,7 @@ import entitiesJPA.UserStatus;
 import exceptions.CreateException;
 import exceptions.DeleteException;
 import exceptions.DisabledUserException;
+import exceptions.GenericServerException;
 import exceptions.GetCollectionException;
 import exceptions.LoginException;
 import exceptions.LoginPasswordException;
@@ -18,6 +19,7 @@ import exceptions.SelectException;
 import exceptions.UpdateException;
 import utils.MailSender;
 import interfaces.EJBUserInterface;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -63,8 +65,10 @@ public class EJBUser implements EJBUserInterface {
 
             } else {
                 //cargamos la nueva
-                EncryptionServerClass hash = new EncryptionServerClass();
-                String passwordHashDB = hash.hashingText(user.getPassword());
+                EncryptionServerClass encryp = new EncryptionServerClass();
+                String notEncodedPassword = encryp.decryptText(user.getPassword());
+            
+                String passwordHashDB = encryp.hashingText(notEncodedPassword);
                 user.setPassword(passwordHashDB);
                 LocalDateTime localDate = LocalDateTime.now();
                 Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
@@ -104,29 +108,35 @@ public class EJBUser implements EJBUserInterface {
     @Override
     public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
-        EncryptionServerClass encryp = new EncryptionServerClass();
-        //String notEncodedPassword = encryp.decryptText(user.getPassword());
-        ret = checkUserbyLogin(user);
+        try {
 
-        UserStatus x = ret.getStatus();
-        if (x == UserStatus.ENABLED) {
-            try {
-                ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", encryp.hashingText(user.getPassword())).getSingleResult();
-            } catch (Exception e) {
-                throw new LoginPasswordException("La contraseña es incorrecta.");
+            EncryptionServerClass encryp = new EncryptionServerClass();
+            String notEncodedPassword = encryp.decryptText(user.getPassword());
+            ret = checkUserbyLogin(user);
+
+            UserStatus x = ret.getStatus();
+            if (x == UserStatus.ENABLED) {
+                try {
+                    ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", encryp.hashingText(notEncodedPassword)).getSingleResult();
+                } catch (Exception e) {
+                    throw new LoginPasswordException("La contraseña es incorrecta.");
+                }
+            } else {
+                throw new DisabledUserException("Usuario no habilitado, pongase en contacto con su empresa/entiedad para más información.");
             }
-        } else {
-            throw new DisabledUserException("Usuario no habilitado, pongase en contacto con su empresa/entiedad para más información.");
-        }
-        Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
-        LocalDateTime localDate = LocalDateTime.now();
-        Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+            Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
+            LocalDateTime localDate = LocalDateTime.now();
+            Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
 
-        q1.setParameter("dateNow", date);
-        q1.setParameter("user_id", ret.getId());
-        q1.executeUpdate();
-        String passwordHashDB = encryp.hashingText(user.getPassword());
-        user.setPassword(passwordHashDB);
+            q1.setParameter("dateNow", date);
+            q1.setParameter("user_id", ret.getId());
+            q1.executeUpdate();
+            String passwordHashDB = encryp.hashingText(user.getPassword());
+            user.setPassword(passwordHashDB);
+
+        } catch (Exception ex) {
+            Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return ret;
     }
 
@@ -152,7 +162,7 @@ public class EJBUser implements EJBUserInterface {
      * @throws RecoverPasswordException
      */
     @Override
-    public void recoverPassword(User user) throws RecoverPasswordException, SelectException {
+    public void recoverPassword(User user) throws RecoverPasswordException {
         try {
             EncryptionServerClass hash = new EncryptionServerClass();
             String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
@@ -162,8 +172,8 @@ public class EJBUser implements EJBUserInterface {
 
             passwordHashDB = hash.hashingText(notEncodedNew);
             user.setPassword(passwordHashDB);
-            
-                        //ENVIAR CORREO
+
+            //ENVIAR CORREO
             MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
             try {
@@ -174,21 +184,16 @@ public class EJBUser implements EJBUserInterface {
                         + notEncodedNew
                         + ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail2"));
                 System.out.println("Ok, mail sent!");
-            } catch (MessagingException e) {
-                System.out.println("Doh!");
-                e.printStackTrace();
-                throw new SelectException();
+            } catch (MessagingException ex) {
+                throw new RecoverPasswordException(ex.getMessage());
             }
             //actualizamos en la base de datos
             Query q1 = em.createQuery("update User a set a.password=:password where a.email=:email");
             q1.setParameter("password", passwordHashDB);
             q1.setParameter("email", user.getEmail());
             q1.executeUpdate();
-            
-
-
-        } catch (Exception e) {
-            throw new RecoverPasswordException();
+        } catch (Exception ex) {
+            throw new RecoverPasswordException(ex.getMessage());
         }
     }
 
@@ -243,7 +248,7 @@ public class EJBUser implements EJBUserInterface {
                     user.getEmail(),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail1")
-                    + "" +notHashPassword
+                    + "" + notHashPassword
                     + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
             System.out.println("Ok, mail sent!");
         } catch (MessagingException e) {
@@ -259,6 +264,7 @@ public class EJBUser implements EJBUserInterface {
      */
     public void disabledUserByCompany(int company_id) throws UpdateException {
         try {
+            
             Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
             q1.setParameter("company_id", company_id);
             q1.executeUpdate();
@@ -279,8 +285,8 @@ public class EJBUser implements EJBUserInterface {
             notEncodedNew.append(alphabet.charAt(random.nextInt(alphabet.length())));
         }
 //String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
-                //StringBuilder::appendCodePoint, StringBuilder::append)
-               // .toString();
+        //StringBuilder::appendCodePoint, StringBuilder::append)
+        // .toString();
         return new String(notEncodedNew);
     }
 
@@ -323,6 +329,16 @@ public class EJBUser implements EJBUserInterface {
         if (!emailRepe.equals(comparador)) {
             throw new UpdateException("Email repetido. Elija otro.");
         }
+    }
+
+    @Override
+    public String getPublicKey() throws GenericServerException {
+        String publicKey = "";
+        try {
+            publicKey = EncryptionServerClass.getPublic();
+        } catch (IOException ex) {
+        }
+        return publicKey;
     }
 
 }

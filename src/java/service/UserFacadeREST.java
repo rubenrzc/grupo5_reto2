@@ -94,7 +94,7 @@ public class UserFacadeREST {
      */
     @GET
     @Produces({MediaType.APPLICATION_XML})
-    public Set<User> findAll() {
+    public Set<User> findAll() throws InternalServerErrorException {
         Set<User> collection = null;
         try {
             collection = ejb.getUserList();
@@ -117,9 +117,10 @@ public class UserFacadeREST {
             ejb.recoverPassword(user);
         } catch (RecoverPasswordException ex) {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-            throw new NotAuthorizedException("Email inexistente.");
+            throw new InternalServerErrorException("Fallo al enviar email, compruebe que el email existe.");
         } catch (SelectException ex) {
-            throw new InternalServerErrorException("Fallo al enviar email");
+            Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("Fallo al enviar email, compruebe que el email existe.");
         }
     }
 
@@ -136,7 +137,7 @@ public class UserFacadeREST {
             throw new InternalServerErrorException("Error al dar de alta al usuario.");
         } catch (UpdateException ex) {
             throw new NotAuthorizedException("Login y/o email ya existen en la base de datos.");
-        } catch (MessagingException ex){
+        } catch (MessagingException ex) {
             throw new NotFoundException("Error al enviar el email a su correo electrónico.");
         }
     }
@@ -170,6 +171,20 @@ public class UserFacadeREST {
             Logger.getLogger(UserFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException(ex.getMessage());
         }
+    }
+
+    @GET
+    @Path("/getPublicKey")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getPublicKey() {
+        String publicKey;
+        try {
+            publicKey = ejb.getPublicKey();
+        } catch (Exception ex) {
+            // LOGGER.warning("RESTUser: " + ex.getMessage());
+            throw new InternalServerErrorException(ex.getMessage());
+        }
+        return publicKey;
     }
 
 }
